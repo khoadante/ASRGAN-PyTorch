@@ -25,6 +25,9 @@ import utils.image_processing as imgproc
 
 
 def main():
+    # Initialize the number of training epochs
+    start_epoch = 0
+
     # Initialize training to generate network evaluation indicators
     best_psnr = 0.0
     best_ssim = 0.0
@@ -60,8 +63,9 @@ def main():
             config.resume_d, map_location=lambda storage, loc: storage
         )
         # Restore the parameters in the training node to this point
-        config.start_epoch = checkpoint["epoch"]
+        start_epoch = checkpoint["epoch"]
         best_psnr = checkpoint["best_psnr"]
+        best_ssim = checkpoint["best_ssim"]
         # Load checkpoint state dict. Extract the fitted model weights
         model_state_dict = discriminator.state_dict()
         new_state_dict = {
@@ -85,8 +89,9 @@ def main():
             config.resume_g, map_location=lambda storage, loc: storage
         )
         # Restore the parameters in the training node to this point
-        config.start_epoch = checkpoint["epoch"]
+        start_epoch = checkpoint["epoch"]
         best_psnr = checkpoint["best_psnr"]
+        best_ssim = checkpoint["best_ssim"]
         # Load checkpoint state dict. Extract the fitted model weights
         model_state_dict = generator.state_dict()
         new_state_dict = {
@@ -136,7 +141,7 @@ def main():
     )
     ema_model.register()
 
-    for epoch in range(config.start_epoch, config.epochs):
+    for epoch in range(start_epoch, config.epochs):
         train(
             discriminator,
             generator,

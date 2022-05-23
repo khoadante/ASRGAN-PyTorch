@@ -9,8 +9,10 @@ import utils.image_processing as imgproc
 
 def main() -> None:
     # Initialize the super-resolution model
-    model = Generator().to(device=config.device, memory_format=torch.channels_last)
-    print("Build Real_ESRGAN model successfully.")
+    model = Generator(
+        config.in_channels, config.out_channels, config.upscale_factor
+    ).to(device=config.device, memory_format=torch.channels_last)
+    print("Build ASRGAN model successfully.")
 
     # Load the super-resolution model weights
     checkpoint = torch.load(
@@ -18,7 +20,7 @@ def main() -> None:
     )
     model.load_state_dict(checkpoint["state_dict"])
     print(
-        f"Load Real_ESRGAN model weights `{os.path.abspath(config.model_path)}` successfully."
+        f"Load ASRGAN model weights `{os.path.abspath(config.model_path)}` successfully."
     )
 
     # Create a folder of super-resolution experiment results
@@ -88,7 +90,7 @@ def main() -> None:
     # NIQE range value is 0~100
     avg_niqe = 100 if niqe_metrics / total_files > 100 else niqe_metrics / total_files
 
-    print(f"NIQE: {avg_niqe:4.2f} u")
+    print(f"NIQE: {avg_niqe:4.2f} 100u")
 
 
 if __name__ == "__main__":

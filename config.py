@@ -84,7 +84,6 @@ if mode == "train_asrnet":
     num_workers = 4
 
     # Incremental training and migration training
-    start_epoch = 0
     resume = ""
 
     # Total num epochs
@@ -114,7 +113,6 @@ if mode == "train_asrgan":
     num_workers = 4
 
     # Incremental training and migration training
-    start_epoch = 0
     resume = "results/ASRNet_baseline/g_last.pth.tar"
     resume_d = ""
     resume_g = ""

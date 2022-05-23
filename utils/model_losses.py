@@ -7,9 +7,7 @@ from networks.losses import ContentLoss
 
 def define_asrnet_loss() -> nn.L1Loss:
     pixel_criterion = nn.L1Loss()
-    pixel_criterion = pixel_criterion.to(
-        device=config.device, memory_format=torch.channels_last
-    )
+    pixel_criterion = pixel_criterion.to(device=config.device, non_blocking=True)
 
     return pixel_criterion
 

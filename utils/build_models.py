@@ -7,7 +7,7 @@ from networks.models import Generator, Discriminator
 
 def build_asrnet_model() -> nn.Module:
     model = Generator(config.in_channels, config.out_channels, config.upscale_factor)
-    model = model.to(device=config.device, memory_format=torch.channels_last)
+    model = model.to(device=config.device, non_blocking=True)
 
     return model
 

@@ -61,8 +61,8 @@ np.random.seed(42)
 device = torch.device("cuda", 0)
 # Turning on when the image size does not change during training can speed up training
 cudnn.benchmark = True
-# When evaluating the performance of the SR model, whether to verify only the Y channel image data
-only_test_y_channel = True
+# NIQE model address
+niqe_model_path = "results/pretrained_models/niqe_model.mat"
 # Model Architecture Parameters
 in_channels = 3
 out_channels = 3
@@ -79,8 +79,8 @@ if mode == "train_asrnet":
     test_lr_image_dir = f"datasets/Set5/LRbicx{upscale_factor}"
     test_hr_image_dir = f"datasets/Set5/GTmod12"
 
-    image_size = 96
-    batch_size = 16
+    image_size = 256
+    batch_size = 48
     num_workers = 4
 
     # Incremental training and migration training
@@ -159,4 +159,4 @@ if mode == "valid":
     sr_dir = f"results/generated/{exp_name}"
     hr_dir = f"datasets/Set14/GTmod12"
 
-    model_path = f"results/{exp_name}/g_last.pth.tar"
+    model_path = f"results/pretrained_models/g_last.pth.tar"

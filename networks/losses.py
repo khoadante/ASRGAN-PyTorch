@@ -49,7 +49,7 @@ class ContentLoss(nn.Module):
 
     def forward(
         self, sr_tensor: torch.Tensor, hr_tensor: torch.Tensor
-    ) -> List[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
+    ) -> List[torch.Tensor]:
         # Standardized operations
         sr_tensor = self.normalize(sr_tensor)
         hr_tensor = self.normalize(hr_tensor)

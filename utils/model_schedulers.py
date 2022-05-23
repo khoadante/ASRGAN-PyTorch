@@ -13,7 +13,7 @@ def define_asrnet_scheduler(optimizer) -> optim.lr_scheduler.StepLR:
 
 def define_asrgan_scheduler(
     g_optimizer: optim.AdamW, d_optimizer: optim.AdamW
-) -> List[optim.lr_scheduler.MultiStepLR, optim.lr_scheduler.MultiStepLR]:
+) -> List[optim.lr_scheduler.MultiStepLR]:
     g_scheduler = optim.lr_scheduler.MultiStepLR(
         g_optimizer, config.lr_scheduler_milestones, config.lr_scheduler_gamma
     )

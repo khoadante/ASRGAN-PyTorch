@@ -2020,7 +2020,7 @@ def random_crop(
     hr_images: torch.Tensor,
     hr_image_size: int,
     upscale_factor: int,
-) -> List[torch.Tensor, torch.Tensor]:
+) -> List[torch.Tensor]:
     """Crop small image patches from one image.
 
     Args:

@@ -5,7 +5,7 @@ from classes.prefetchers import CUDAPrefetcher
 from classes.datasets import TrainDataset, ValidDataset, TestDataset
 
 
-def load_datasets() -> List[CUDAPrefetcher, CUDAPrefetcher, CUDAPrefetcher]:
+def load_datasets() -> List[CUDAPrefetcher]:
     # Load train, test and valid datasets
     train_datasets = TrainDataset(
         config.train_image_dir,

@@ -182,7 +182,7 @@ def ssim(
     return ssim_metrics
 
 
-def _estimate_aggd_parameters(vector: np.ndarray) -> Union[np.ndarray, float, float]:
+def _estimate_aggd_parameters(vector: np.ndarray) -> Union[np.ndarray, float]:
     """Python implements the NIQE (Natural Image Quality Evaluator) function,
     This function is used to estimate an asymmetric generalized Gaussian distribution
 
@@ -890,7 +890,7 @@ def _nanmean_torch(v, *args, inplace=False, **kwargs):
     return v.sum(*args, **kwargs) / (~is_nan).float().sum(*args, **kwargs)
 
 
-def _symm_pad_torch(im: torch.Tensor, padding: List[int, int, int, int]):
+def _symm_pad_torch(im: torch.Tensor, padding: List[int]):
     """Symmetric padding same as tensorflow.
     Ref: https://discuss.pytorch.org/t/symmetric-padding/19866/3
     """
@@ -1314,7 +1314,7 @@ class SSIM(nn.Module):
 
 def _estimate_aggd_parameters_torch(
     tensor: torch.Tensor, get_sigma: bool
-) -> List[torch.Tensor, torch.Tensor, torch.Tensor]:
+) -> List[torch.Tensor]:
     """PyTorch implements the BRISQUE (Blind/Referenceless Image Spatial Quality Evaluator) function
     This function is used to estimate an asymmetric generalized Gaussian distribution
 

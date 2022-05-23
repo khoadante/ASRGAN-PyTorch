@@ -12,7 +12,7 @@ def build_asrnet_model() -> nn.Module:
     return model
 
 
-def build_asrgan_model() -> List[nn.Module, nn.Module]:
+def build_asrgan_model() -> List[nn.Module]:
     generator = Generator(
         config.in_channels, config.out_channels, config.upscale_factor
     )

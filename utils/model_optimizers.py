@@ -12,7 +12,7 @@ def define_asrnet_optimizer(model) -> optim.AdamW:
 
 def define_asrgan_optimizer(
     generator: nn.Module, discriminator: nn.Module
-) -> List[optim.AdamW, optim.AdamW]:
+) -> List[optim.AdamW]:
     g_optimizer = optim.AdamW(
         generator.parameters(), config.model_lr, config.model_betas
     )

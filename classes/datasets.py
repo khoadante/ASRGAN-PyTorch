@@ -46,7 +46,7 @@ class TrainDataset(Dataset):
 
     def __getitem__(
         self, batch_index: int
-    ) -> List[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
+    ) -> List[torch.Tensor]:
         # Read a batch of image data
         image = (
             cv2.imread(self.image_file_names[batch_index], cv2.IMREAD_UNCHANGED).astype(
@@ -187,7 +187,7 @@ class ValidDataset(Dataset):
 
     def __getitem__(
         self, batch_index: int
-    ) -> List[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
+    ) -> List[torch.Tensor]:
         # Read a batch of image data
         image = (
             cv2.imread(self.image_file_names[batch_index], cv2.IMREAD_UNCHANGED).astype(
@@ -234,7 +234,7 @@ class TestDataset(Dataset):
             os.path.join(test_hr_image_dir, x) for x in os.listdir(test_lr_image_dir)
         ]
 
-    def __getitem__(self, batch_index: int) -> List[torch.Tensor, torch.Tensor]:
+    def __getitem__(self, batch_index: int) -> List[torch.Tensor]:
         # Read a batch of image data
         lr_image = (
             cv2.imread(

@@ -457,7 +457,7 @@ def validate(
     psnr_model: nn.Module,
     ssim_model: nn.Module,
     mode: str,
-) -> List[float, float]:
+) -> List[float]:
     """Test main program
 
     Args:

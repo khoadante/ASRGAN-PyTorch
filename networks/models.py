@@ -6,9 +6,7 @@ from networks.blocks import ResidualResidualDenseBlock
 
 
 class Generator(nn.Module):
-    def __init__(
-        self, in_channels: int, out_channels: int, upscale_factor: int
-    ) -> None:
+    def __init__(self, in_channels: int, out_channels: int, upscale_factor: int) -> None:
         super(Generator, self).__init__()
         if upscale_factor == 2:
             in_channels *= 4
@@ -83,7 +81,6 @@ class Generator(nn.Module):
                 module.weight.data *= 0.1
                 if module.bias is not None:
                     nn.init.constant_(module.bias, 0)
-
 
 class Discriminator(nn.Module):
     def __init__(self) -> None:

@@ -80,7 +80,7 @@ if mode == "train_asrnet":
     test_hr_image_dir = f"datasets/Set5/GTmod12"
 
     image_size = 256
-    batch_size = 48
+    batch_size = 1
     num_workers = 4
 
     # Incremental training and migration training
@@ -109,7 +109,7 @@ if mode == "train_asrgan":
     test_hr_image_dir = f"datasets/Set5/GTmod12"
 
     image_size = 256
-    batch_size = 48
+    batch_size = 1
     num_workers = 4
 
     # Incremental training and migration training

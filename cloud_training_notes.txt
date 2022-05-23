@@ -1,0 +1,6 @@
+nvidia-smi
+
+git clone https://github.com/khoadante/ASRGAN.git
+cd ASRGAN/
+
+python setup.py

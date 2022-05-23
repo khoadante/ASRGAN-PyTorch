@@ -74,8 +74,8 @@ if mode == "train_asrnet":
     test_lr_image_dir = f"datasets/Set5/LRbicx{upscale_factor}"
     test_hr_image_dir = f"datasets/Set5/GTmod12"
 
-    image_size = 256
-    batch_size = 48
+    image_size = 96
+    batch_size = 16
     num_workers = 4
 
     # Incremental training and migration training
@@ -83,7 +83,7 @@ if mode == "train_asrnet":
     resume = ""
 
     # Total num epochs
-    epochs = 1298
+    epochs = 1000
 
     # Optimizer parameter
     model_lr = 2e-4
@@ -115,7 +115,7 @@ if mode == "train_asrgan":
     resume_g = ""
 
     # Total num epochs
-    epochs = 519
+    epochs = 500
 
     # Feature extraction layer parameter configuration
     feature_model_extractor_nodes = ["features.2", "features.7", "features.16", "features.25", "features.34"]

@@ -1,3 +1,5 @@
+ssh-keygen -f "/home/khoa/.ssh/known_hosts" -R "cloud.server.ip.address"
+
 nvidia-smi
 
 git clone https://github.com/khoadante/ASRGAN.git

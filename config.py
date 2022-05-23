@@ -87,7 +87,7 @@ if mode == "train_asrnet":
     resume = ""
 
     # Total num epochs
-    epochs = 1000
+    epochs = 20
 
     # Optimizer parameter
     model_lr = 2e-4
@@ -118,7 +118,7 @@ if mode == "train_asrgan":
     resume_g = ""
 
     # Total num epochs
-    epochs = 500
+    epochs = 10
 
     # Feature extraction layer parameter configuration
     feature_model_extractor_nodes = [

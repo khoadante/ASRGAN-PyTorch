@@ -2,7 +2,7 @@ import torch
 from torch import nn
 import torch.nn.functional as F
 from torch.nn.utils import spectral_norm
-from networks.blocks import ResidualDenseBlock, ResidualResidualDenseBlock
+from blocks import ResidualResidualDenseBlock
 
 
 class Generator(nn.Module):

@@ -1,6 +1,6 @@
 import collections.abc
 import math
-import os
+import warnings
 from itertools import repeat
 
 import cv2

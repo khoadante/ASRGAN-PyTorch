@@ -1,7 +1,7 @@
 import itertools
 import math
 import random
-from typing import Any, List
+from typing import Any, List, Tuple
 
 import cv2
 import numpy as np
@@ -1022,7 +1022,7 @@ def random_add_jpg_compression(image, quality_range=(90, 100)):
     """Randomly add JPG compression artifacts.
     Args:
         image (Numpy array): Input image, shape (h, w, c), range [0, 1], float32.
-        quality_range (tuple[float] | list[float]): JPG compression quality
+        quality_range (Tuple[float] | list[float]): JPG compression quality
             range. 0 for lowest quality, 100 for best quality.
             Default: (90, 100).
     Returns:
@@ -2069,14 +2069,14 @@ def random_crop(
 
 
 def random_rotate(
-    image, angles: list, center: tuple[int, int] = None, scale_factor: float = 1.0
+    image, angles: list, center: Tuple[int, int] = None, scale_factor: float = 1.0
 ) -> np.ndarray:
     """Rotate an image by a random angle
 
     Args:
         image (np.ndarray): Image read with OpenCV
         angles (list): Rotation angle range
-        center (optional, tuple[int, int]): High resolution image selection center point. Default: ``None``
+        center (optional, Tuple[int, int]): High resolution image selection center point. Default: ``None``
         scale_factor (optional, float): scaling factor. Default: 1.0
 
     Returns:

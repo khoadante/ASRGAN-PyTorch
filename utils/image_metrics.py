@@ -13,7 +13,7 @@ from scipy.ndimage.filters import convolve
 from scipy.special import gamma
 from torch import nn
 from torch.nn import functional as F
-from typing import List, Union
+from typing import List, Union, Tuple, Optional
 
 import utils.image_processing as imgproc
 
@@ -27,8 +27,8 @@ __all__ = [
     "NIQE",
 ]
 
-_I = typing.Optional[int]
-_D = typing.Optional[torch.dtype]
+_I = Optional[int]
+_D = Optional[torch.dtype]
 
 
 # The following is the implementation of IQA method in Python, using CPU as processing device
@@ -558,7 +558,7 @@ def _image_filter(
 
 def _reshape_input_torch(
     tensor: torch.Tensor,
-) -> typing.Tuple[torch.Tensor, _I, _I, int, int]:
+) -> Tuple[torch.Tensor, _I, _I, int, int]:
     if tensor.dim() == 4:
         b, c, h, w = tensor.size()
     elif tensor.dim() == 3:
@@ -589,7 +589,7 @@ def _reshape_output_torch(tensor: torch.Tensor, b: _I, c: _I) -> torch.Tensor:
     return tensor
 
 
-def _cast_input_torch(tensor: torch.Tensor) -> typing.Tuple[torch.Tensor, _D]:
+def _cast_input_torch(tensor: torch.Tensor) -> Tuple[torch.Tensor, _D]:
     if tensor.dtype != torch.float32 or tensor.dtype != torch.float64:
         dtype = tensor.dtype
         tensor = tensor.float()
@@ -675,7 +675,7 @@ def _padding_torch(
     dim: int,
     pad_pre: int,
     pad_post: int,
-    padding_type: typing.Optional[str] = "reflect",
+    padding_type: Optional[str] = "reflect",
 ) -> torch.Tensor:
     if padding_type is None:
         return tensor
@@ -689,7 +689,7 @@ def _padding_torch(
 
 def _get_padding_torch(
     tensor: torch.Tensor, kernel_size: int, x_size: int
-) -> typing.Tuple[int, int, torch.Tensor]:
+) -> Tuple[int, int, torch.Tensor]:
     tensor = tensor.long()
     r_min = tensor.min()
     r_max = tensor.max() + kernel_size - 1
@@ -973,9 +973,9 @@ def _blockproc_torch(
 
 def _image_resize_torch(
     tensor: torch.Tensor,
-    scale: typing.Optional[float] = None,
-    sizes: typing.Optional[typing.Tuple[int, int]] = None,
-    kernel: typing.Union[str, torch.Tensor] = "cubic",
+    scale: Optional[float] = None,
+    sizes: Optional[Tuple[int, int]] = None,
+    kernel: Union[str, torch.Tensor] = "cubic",
     sigma: float = 2,
     rotation_degree: float = 0,
     padding_type: str = "reflect",

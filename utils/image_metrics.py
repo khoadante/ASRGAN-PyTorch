@@ -19,8 +19,12 @@ import utils.image_processing as imgproc
 
 
 __all__ = [
-    "psnr", "ssim", "niqe",
-    "PSNR", "SSIM", "NIQE",
+    "psnr",
+    "ssim",
+    "niqe",
+    "PSNR",
+    "SSIM",
+    "NIQE",
 ]
 
 _I = typing.Optional[int]
@@ -37,15 +41,23 @@ def _check_image(raw_image: np.ndarray, dst_image: np.ndarray):
 
     """
     # check image scale
-    assert raw_image.shape == dst_image.shape, \
-        f"Supplied images have different sizes {str(raw_image.shape)} and {str(dst_image.shape)}"
+    assert (
+        raw_image.shape == dst_image.shape
+    ), f"Supplied images have different sizes {str(raw_image.shape)} and {str(dst_image.shape)}"
 
     # check image type
     if raw_image.dtype != dst_image.dtype:
-        warnings.warn(f"Supplied images have different dtypes{str(raw_image.shape)} and {str(dst_image.shape)}")
+        warnings.warn(
+            f"Supplied images have different dtypes{str(raw_image.shape)} and {str(dst_image.shape)}"
+        )
 
 
-def psnr(raw_image: np.ndarray, dst_image: np.ndarray, crop_border: int, only_test_y_channel: bool) -> float:
+def psnr(
+    raw_image: np.ndarray,
+    dst_image: np.ndarray,
+    crop_border: int,
+    only_test_y_channel: bool,
+) -> float:
     """Python implements PSNR (Peak Signal-to-Noise Ratio, peak signal-to-noise ratio) function
 
     Args:
@@ -75,7 +87,9 @@ def psnr(raw_image: np.ndarray, dst_image: np.ndarray, crop_border: int, only_te
     raw_image = raw_image.astype(np.float64)
     dst_image = dst_image.astype(np.float64)
 
-    psnr_metrics = 10 * np.log10((255.0 ** 2) / np.mean((raw_image - dst_image) ** 2) + 1e-8)
+    psnr_metrics = 10 * np.log10(
+        (255.0**2) / np.mean((raw_image - dst_image) ** 2) + 1e-8
+    )
 
     return psnr_metrics
 
@@ -99,15 +113,24 @@ def _ssim(raw_image: np.ndarray, dst_image: np.ndarray) -> float:
 
     raw_mean = cv2.filter2D(raw_image, -1, kernel_window)[5:-5, 5:-5]
     dst_mean = cv2.filter2D(dst_image, -1, kernel_window)[5:-5, 5:-5]
-    raw_mean_square = raw_mean ** 2
-    dst_mean_square = dst_mean ** 2
+    raw_mean_square = raw_mean**2
+    dst_mean_square = dst_mean**2
     raw_dst_mean = raw_mean * dst_mean
-    raw_variance = cv2.filter2D(raw_image ** 2, -1, kernel_window)[5:-5, 5:-5] - raw_mean_square
-    dst_variance = cv2.filter2D(dst_image ** 2, -1, kernel_window)[5:-5, 5:-5] - dst_mean_square
-    raw_dst_covariance = cv2.filter2D(raw_image * dst_image, -1, kernel_window)[5:-5, 5:-5] - raw_dst_mean
+    raw_variance = (
+        cv2.filter2D(raw_image**2, -1, kernel_window)[5:-5, 5:-5] - raw_mean_square
+    )
+    dst_variance = (
+        cv2.filter2D(dst_image**2, -1, kernel_window)[5:-5, 5:-5] - dst_mean_square
+    )
+    raw_dst_covariance = (
+        cv2.filter2D(raw_image * dst_image, -1, kernel_window)[5:-5, 5:-5]
+        - raw_dst_mean
+    )
 
     ssim_molecular = (2 * raw_dst_mean + c1) * (2 * raw_dst_covariance + c2)
-    ssim_denominator = (raw_mean_square + dst_mean_square + c1) * (raw_variance + dst_variance + c2)
+    ssim_denominator = (raw_mean_square + dst_mean_square + c1) * (
+        raw_variance + dst_variance + c2
+    )
 
     ssim_metrics = ssim_molecular / ssim_denominator
     ssim_metrics = np.mean(ssim_metrics)
@@ -115,7 +138,12 @@ def _ssim(raw_image: np.ndarray, dst_image: np.ndarray) -> float:
     return ssim_metrics
 
 
-def ssim(raw_image: np.ndarray, dst_image: np.ndarray, crop_border: int, only_test_y_channel: bool) -> float:
+def ssim(
+    raw_image: np.ndarray,
+    dst_image: np.ndarray,
+    crop_border: int,
+    only_test_y_channel: bool,
+) -> float:
     """Python implements the SSIM (Structural Similarity) function, which calculates single/multi-channel data
 
     Args:
@@ -174,18 +202,26 @@ def _estimate_aggd_parameters(vector: np.ndarray) -> Union[np.ndarray, float, fl
     vector = vector.flatten()
     gam = np.arange(0.2, 10.001, 0.001)  # len = 9801
     gam_reciprocal = np.reciprocal(gam)
-    r_gam = np.square(gamma(gam_reciprocal * 2)) / (gamma(gam_reciprocal) * gamma(gam_reciprocal * 3))
+    r_gam = np.square(gamma(gam_reciprocal * 2)) / (
+        gamma(gam_reciprocal) * gamma(gam_reciprocal * 3)
+    )
 
     left_std = np.sqrt(np.mean(vector[vector < 0] ** 2))
     right_std = np.sqrt(np.mean(vector[vector > 0] ** 2))
     gamma_hat = left_std / right_std
-    rhat = (np.mean(np.abs(vector))) ** 2 / np.mean(vector ** 2)
-    rhat_norm = (rhat * (gamma_hat ** 3 + 1) * (gamma_hat + 1)) / ((gamma_hat ** 2 + 1) ** 2)
+    rhat = (np.mean(np.abs(vector))) ** 2 / np.mean(vector**2)
+    rhat_norm = (rhat * (gamma_hat**3 + 1) * (gamma_hat + 1)) / (
+        (gamma_hat**2 + 1) ** 2
+    )
     array_position = np.argmin((r_gam - rhat_norm) ** 2)
 
     aggd_parameters = gam[array_position]
-    left_beta = left_std * np.sqrt(gamma(1 / aggd_parameters) / gamma(3 / aggd_parameters))
-    right_beta = right_std * np.sqrt(gamma(1 / aggd_parameters) / gamma(3 / aggd_parameters))
+    left_beta = left_std * np.sqrt(
+        gamma(1 / aggd_parameters) / gamma(3 / aggd_parameters)
+    )
+    right_beta = right_std * np.sqrt(
+        gamma(1 / aggd_parameters) / gamma(3 / aggd_parameters)
+    )
 
     return aggd_parameters, left_beta, right_beta
 
@@ -213,19 +249,25 @@ def _get_mscn_feature(image: np.ndarray) -> np.ndarray:
     for i in range(len(shifts)):
         shifted_block = np.roll(image, shifts[i], axis=(0, 1))
         # Calculate the asymmetric generalized Gaussian distribution
-        aggd_parameters, left_beta, right_beta = _estimate_aggd_parameters(image * shifted_block)
-        mean = (right_beta - left_beta) * (gamma(2 / aggd_parameters) / gamma(1 / aggd_parameters))
+        aggd_parameters, left_beta, right_beta = _estimate_aggd_parameters(
+            image * shifted_block
+        )
+        mean = (right_beta - left_beta) * (
+            gamma(2 / aggd_parameters) / gamma(1 / aggd_parameters)
+        )
         mscn_feature.extend([aggd_parameters, mean, left_beta, right_beta])
 
     return mscn_feature
 
 
-def _fit_mscn_ipac(image: np.ndarray,
-                   mu_pris_param: np.ndarray,
-                   cov_pris_param: np.ndarray,
-                   gaussian_window: np.ndarray,
-                   block_size_height: int,
-                   block_size_width: int) -> float:
+def _fit_mscn_ipac(
+    image: np.ndarray,
+    mu_pris_param: np.ndarray,
+    cov_pris_param: np.ndarray,
+    gaussian_window: np.ndarray,
+    block_size_height: int,
+    block_size_width: int,
+) -> float:
     """Python implements the NIQE (Natural Image Quality Evaluator) function,
     This function is used to fit the inner product of adjacent coefficients of MSCN
 
@@ -247,26 +289,43 @@ def _fit_mscn_ipac(image: np.ndarray,
     image_height, image_width = image.shape
     num_block_height = math.floor(image_height / block_size_height)
     num_block_width = math.floor(image_width / block_size_width)
-    image = image[0:num_block_height * block_size_height, 0:num_block_width * block_size_width]
+    image = image[
+        0 : num_block_height * block_size_height, 0 : num_block_width * block_size_width
+    ]
 
     features_parameters = []
     for scale in (1, 2):
         mu = convolve(image, gaussian_window, mode="nearest")
-        sigma = np.sqrt(np.abs(convolve(np.square(image), gaussian_window, mode="nearest") - np.square(mu)))
+        sigma = np.sqrt(
+            np.abs(
+                convolve(np.square(image), gaussian_window, mode="nearest")
+                - np.square(mu)
+            )
+        )
         image_norm = (image - mu) / (sigma + 1)
 
         feature = []
         for idx_w in range(num_block_width):
             for idx_h in range(num_block_height):
-                vector = image_norm[idx_h * block_size_height // scale:(idx_h + 1) * block_size_height // scale,
-                         idx_w * block_size_width // scale:(idx_w + 1) * block_size_width // scale]
+                vector = image_norm[
+                    idx_h
+                    * block_size_height
+                    // scale : (idx_h + 1)
+                    * block_size_height
+                    // scale,
+                    idx_w
+                    * block_size_width
+                    // scale : (idx_w + 1)
+                    * block_size_width
+                    // scale,
+                ]
                 feature.append(_get_mscn_feature(vector))
 
         features_parameters.append(np.array(feature))
 
         if scale == 1:
-            image = imgproc.image_resize(image / 255., scale=0.5, antialiasing=True)
-            image = image * 255.
+            image = imgproc.image_resize(image / 255.0, scale=0.5, antialiasing=True)
+            image = image * 255.0
 
     features_parameters = np.concatenate(features_parameters, axis=1)
 
@@ -276,8 +335,10 @@ def _fit_mscn_ipac(image: np.ndarray,
     cov_distparam = np.cov(distparam_no_nan, rowvar=False)
 
     invcov_param = np.linalg.pinv((cov_pris_param + cov_distparam) / 2)
-    niqe_metric = np.matmul(np.matmul((mu_pris_param - mu_distparam), invcov_param),
-                            np.transpose((mu_pris_param - mu_distparam)))
+    niqe_metric = np.matmul(
+        np.matmul((mu_pris_param - mu_distparam), invcov_param),
+        np.transpose((mu_pris_param - mu_distparam)),
+    )
 
     niqe_metric = np.sqrt(niqe_metric)
     niqe_metric = float(np.squeeze(niqe_metric))
@@ -285,11 +346,13 @@ def _fit_mscn_ipac(image: np.ndarray,
     return niqe_metric
 
 
-def niqe(image: np.ndarray,
-         crop_border: int,
-         niqe_model_path: str = None,
-         block_size_height: int = 96,
-         block_size_width: int = 96) -> float:
+def niqe(
+    image: np.ndarray,
+    crop_border: int,
+    niqe_model_path: str = None,
+    block_size_height: int = 96,
+    block_size_width: int = 96,
+) -> float:
     """Python implements the NIQE (Natural Image Quality Evaluator) function,
     This function computes single/multi-channel data
 
@@ -310,7 +373,9 @@ def niqe(image: np.ndarray,
 
     # Defining the NIQE Feature Extraction Model
     if niqe_model_path is None:
-        niqe_model = np.load(os.path.join("results", "pretrained_models", "niqe_model.npz"))
+        niqe_model = np.load(
+            os.path.join("results", "pretrained_models", "niqe_model.npz")
+        )
     else:
         niqe_model = np.load(niqe_model_path)
 
@@ -324,12 +389,14 @@ def niqe(image: np.ndarray,
     # Convert data type to numpy.float64 bit
     y_image = y_image.astype(np.float64)
 
-    niqe_metric = _fit_mscn_ipac(y_image,
-                                 mu_pris_param,
-                                 cov_pris_param,
-                                 gaussian_window,
-                                 block_size_height,
-                                 block_size_width)
+    niqe_metric = _fit_mscn_ipac(
+        y_image,
+        mu_pris_param,
+        cov_pris_param,
+        gaussian_window,
+        block_size_height,
+        block_size_width,
+    )
 
     return niqe_metric
 
@@ -344,8 +411,9 @@ def _check_tensor_shape(raw_tensor: torch.Tensor, dst_tensor: torch.Tensor):
 
     """
     # Check if tensor scales are consistent
-    assert raw_tensor.shape == dst_tensor.shape, \
-        f"Supplied images have different sizes {str(raw_tensor.shape)} and {str(dst_tensor.shape)}"
+    assert (
+        raw_tensor.shape == dst_tensor.shape
+    ), f"Supplied images have different sizes {str(raw_tensor.shape)} and {str(dst_tensor.shape)}"
 
 
 def _fspecial_gaussian_torch(window_size: int, sigma: float, channels: int):
@@ -364,9 +432,9 @@ def _fspecial_gaussian_torch(window_size: int, sigma: float, channels: int):
         shape = (window_size, window_size)
     else:
         shape = window_size
-    m, n = [(ss - 1.) / 2. for ss in shape]
-    y, x = np.ogrid[-m:m + 1, -n:n + 1]
-    h = np.exp(-(x * x + y * y) / (2. * sigma * sigma))
+    m, n = [(ss - 1.0) / 2.0 for ss in shape]
+    y, x = np.ogrid[-m : m + 1, -n : n + 1]
+    h = np.exp(-(x * x + y * y) / (2.0 * sigma * sigma))
     h[h < np.finfo(h.dtype).eps * h.max()] = 0
     sumh = h.sum()
 
@@ -387,12 +455,16 @@ def _to_tuple(n):
     return parse
 
 
-def _excact_padding_2d(tensor: torch.Tensor,
-                       kernel: torch.Tensor,
-                       stride: int = 1,
-                       dilation: int = 1,
-                       mode: str = "same") -> torch.Tensor:
-    assert len(tensor.shape) == 4, f"Only support 4D tensor input, but got {tensor.shape}"
+def _excact_padding_2d(
+    tensor: torch.Tensor,
+    kernel: torch.Tensor,
+    stride: int = 1,
+    dilation: int = 1,
+    mode: str = "same",
+) -> torch.Tensor:
+    assert (
+        len(tensor.shape) == 4
+    ), f"Only support 4D tensor input, but got {tensor.shape}"
     kernel = _to_tuple(2)(kernel)
     stride = _to_tuple(2)(stride)
     dilation = _to_tuple(2)(dilation)
@@ -401,7 +473,12 @@ def _excact_padding_2d(tensor: torch.Tensor,
     w2 = math.ceil(w / stride[1])
     pad_row = (h2 - 1) * stride[0] + (kernel[0] - 1) * dilation[0] + 1 - h
     pad_col = (w2 - 1) * stride[1] + (kernel[1] - 1) * dilation[1] + 1 - w
-    pad_l, pad_r, pad_t, pad_b = (pad_col // 2, pad_col - pad_col // 2, pad_row // 2, pad_row - pad_row // 2)
+    pad_l, pad_r, pad_t, pad_b = (
+        pad_col // 2,
+        pad_col - pad_col // 2,
+        pad_row // 2,
+        pad_row - pad_row // 2,
+    )
 
     mode = mode if mode != "same" else "constant"
     if mode != "symmetric":
@@ -417,7 +494,12 @@ def _excact_padding_2d(tensor: torch.Tensor,
 
         whole_map = torch.cat((row1, row2, row3), dim=2)
 
-        tensor = whole_map[:, :, h - pad_t:2 * h + pad_b, w - pad_l:2 * w + pad_r, ]
+        tensor = whole_map[
+            :,
+            :,
+            h - pad_t : 2 * h + pad_b,
+            w - pad_l : 2 * w + pad_r,
+        ]
 
     return tensor
 
@@ -442,16 +524,20 @@ class ExactPadding2d(nn.Module):
         self.mode = mode
 
     def forward(self, tensor: torch.Tensor) -> torch.Tensor:
-        return _excact_padding_2d(tensor, self.kernel, self.stride, self.dilation, self.mode)
+        return _excact_padding_2d(
+            tensor, self.kernel, self.stride, self.dilation, self.mode
+        )
 
 
-def _image_filter(tensor: torch.Tensor,
-                  weight: torch.Tensor,
-                  bias=None,
-                  stride: int = 1,
-                  padding: str = "same",
-                  dilation: int = 1,
-                  groups: int = 1):
+def _image_filter(
+    tensor: torch.Tensor,
+    weight: torch.Tensor,
+    bias=None,
+    stride: int = 1,
+    padding: str = "same",
+    dilation: int = 1,
+    groups: int = 1,
+):
     """PyTorch implements the imfilter() function in MATLAB
 
     Args:
@@ -465,10 +551,14 @@ def _image_filter(tensor: torch.Tensor,
     kernel_size = weight.shape[2:]
     exact_padding_2d = ExactPadding2d(kernel_size, stride, dilation, mode=padding)
 
-    return F.conv2d(exact_padding_2d(tensor), weight, bias, stride, dilation=dilation, groups=groups)
+    return F.conv2d(
+        exact_padding_2d(tensor), weight, bias, stride, dilation=dilation, groups=groups
+    )
 
 
-def _reshape_input_torch(tensor: torch.Tensor) -> typing.Tuple[torch.Tensor, _I, _I, int, int]:
+def _reshape_input_torch(
+    tensor: torch.Tensor,
+) -> typing.Tuple[torch.Tensor, _I, _I, int, int]:
     if tensor.dim() == 4:
         b, c, h, w = tensor.size()
     elif tensor.dim() == 3:
@@ -478,7 +568,7 @@ def _reshape_input_torch(tensor: torch.Tensor) -> typing.Tuple[torch.Tensor, _I,
         h, w = tensor.size()
         b = c = None
     else:
-        raise ValueError('{}-dim Tensor is not supported!'.format(tensor.dim()))
+        raise ValueError("{}-dim Tensor is not supported!".format(tensor.dim()))
 
     tensor = tensor.view(-1, 1, h, w)
     return tensor, b, c, h, w
@@ -541,14 +631,16 @@ def _cubic_contribution_torch(tensor: torch.Tensor, a: float = -0.5) -> torch.Te
 
 
 def _gaussian_contribution_torch(x: torch.Tensor, sigma: float = 2.0) -> torch.Tensor:
-    range_3sigma = (x.abs() <= 3 * sigma + 1)
+    range_3sigma = x.abs() <= 3 * sigma + 1
     # Normalization will be done after
-    cont = torch.exp(-x.pow(2) / (2 * sigma ** 2))
+    cont = torch.exp(-x.pow(2) / (2 * sigma**2))
     cont = cont * range_3sigma.to(dtype=x.dtype)
     return cont
 
 
-def _reflect_padding_torch(tensor: torch.Tensor, dim: int, pad_pre: int, pad_post: int) -> torch.Tensor:
+def _reflect_padding_torch(
+    tensor: torch.Tensor, dim: int, pad_pre: int, pad_post: int
+) -> torch.Tensor:
     """
     Apply reflect padding to the given Tensor.
     Note that it is slightly different from the PyTorch functional.pad,
@@ -562,14 +654,14 @@ def _reflect_padding_torch(tensor: torch.Tensor, dim: int, pad_pre: int, pad_pos
     b, c, h, w = tensor.size()
     if dim == 2 or dim == -2:
         padding_buffer = tensor.new_zeros(b, c, h + pad_pre + pad_post, w)
-        padding_buffer[..., pad_pre:(h + pad_pre), :].copy_(tensor)
+        padding_buffer[..., pad_pre : (h + pad_pre), :].copy_(tensor)
         for p in range(pad_pre):
             padding_buffer[..., pad_pre - p - 1, :].copy_(tensor[..., p, :])
         for p in range(pad_post):
             padding_buffer[..., h + pad_pre + p, :].copy_(tensor[..., -(p + 1), :])
     else:
         padding_buffer = tensor.new_zeros(b, c, h, w + pad_pre + pad_post)
-        padding_buffer[..., pad_pre:(w + pad_pre)].copy_(tensor)
+        padding_buffer[..., pad_pre : (w + pad_pre)].copy_(tensor)
         for p in range(pad_pre):
             padding_buffer[..., pad_pre - p - 1].copy_(tensor[..., p])
         for p in range(pad_post):
@@ -578,22 +670,26 @@ def _reflect_padding_torch(tensor: torch.Tensor, dim: int, pad_pre: int, pad_pos
     return padding_buffer
 
 
-def _padding_torch(tensor: torch.Tensor,
-                   dim: int,
-                   pad_pre: int,
-                   pad_post: int,
-                   padding_type: typing.Optional[str] = 'reflect') -> torch.Tensor:
+def _padding_torch(
+    tensor: torch.Tensor,
+    dim: int,
+    pad_pre: int,
+    pad_post: int,
+    padding_type: typing.Optional[str] = "reflect",
+) -> torch.Tensor:
     if padding_type is None:
         return tensor
-    elif padding_type == 'reflect':
+    elif padding_type == "reflect":
         x_pad = _reflect_padding_torch(tensor, dim, pad_pre, pad_post)
     else:
-        raise ValueError('{} padding is not supported!'.format(padding_type))
+        raise ValueError("{} padding is not supported!".format(padding_type))
 
     return x_pad
 
 
-def _get_padding_torch(tensor: torch.Tensor, kernel_size: int, x_size: int) -> typing.Tuple[int, int, torch.Tensor]:
+def _get_padding_torch(
+    tensor: torch.Tensor, kernel_size: int, x_size: int
+) -> typing.Tuple[int, int, torch.Tensor]:
     tensor = tensor.long()
     r_min = tensor.min()
     r_max = tensor.max() + kernel_size - 1
@@ -614,29 +710,33 @@ def _get_padding_torch(tensor: torch.Tensor, kernel_size: int, x_size: int) -> t
     return pad_pre, pad_post, tensor
 
 
-def _get_weight_torch(tensor: torch.Tensor,
-                      kernel_size: int,
-                      kernel: str = "cubic",
-                      sigma: float = 2.0,
-                      antialiasing_factor: float = 1) -> torch.Tensor:
+def _get_weight_torch(
+    tensor: torch.Tensor,
+    kernel_size: int,
+    kernel: str = "cubic",
+    sigma: float = 2.0,
+    antialiasing_factor: float = 1,
+) -> torch.Tensor:
     buffer_pos = tensor.new_zeros(kernel_size, len(tensor))
     for idx, buffer_sub in enumerate(buffer_pos):
         buffer_sub.copy_(tensor - idx)
 
     # Expand (downsampling) / Shrink (upsampling) the receptive field.
     buffer_pos *= antialiasing_factor
-    if kernel == 'cubic':
+    if kernel == "cubic":
         weight = _cubic_contribution_torch(buffer_pos)
-    elif kernel == 'gaussian':
+    elif kernel == "gaussian":
         weight = _gaussian_contribution_torch(buffer_pos, sigma=sigma)
     else:
-        raise ValueError('{} kernel is not supported!'.format(kernel))
+        raise ValueError("{} kernel is not supported!".format(kernel))
 
     weight /= weight.sum(dim=0, keepdim=True)
     return weight
 
 
-def _reshape_tensor_torch(tensor: torch.Tensor, dim: int, kernel_size: int) -> torch.Tensor:
+def _reshape_tensor_torch(
+    tensor: torch.Tensor, dim: int, kernel_size: int
+) -> torch.Tensor:
     # Resize height
     if dim == 2 or dim == -2:
         k = (kernel_size, 1)
@@ -653,14 +753,16 @@ def _reshape_tensor_torch(tensor: torch.Tensor, dim: int, kernel_size: int) -> t
     return unfold
 
 
-def _resize_1d_torch(tensor: torch.Tensor,
-                     dim: int,
-                     size: int,
-                     scale: float,
-                     kernel: str = 'cubic',
-                     sigma: float = 2.0,
-                     padding_type: str = 'reflect',
-                     antialiasing: bool = True) -> torch.Tensor:
+def _resize_1d_torch(
+    tensor: torch.Tensor,
+    dim: int,
+    size: int,
+    scale: float,
+    kernel: str = "cubic",
+    sigma: float = 2.0,
+    padding_type: str = "reflect",
+    antialiasing: bool = True,
+) -> torch.Tensor:
     """
     Args:
         tensor (torch.Tensor): A torch.Tensor of dimension (B x C, 1, H, W).
@@ -674,7 +776,7 @@ def _resize_1d_torch(tensor: torch.Tensor,
         return tensor
 
     # Default bicubic kernel with antialiasing (only when downsampling)
-    if kernel == 'cubic':
+    if kernel == "cubic":
         kernel_size = 4
     else:
         kernel_size = math.floor(6 * sigma)
@@ -708,7 +810,9 @@ def _resize_1d_torch(tensor: torch.Tensor,
             sigma=sigma,
             antialiasing_factor=antialiasing_factor,
         )
-        pad_pre, pad_post, base = _get_padding_torch(base, kernel_size, tensor.size(dim))
+        pad_pre, pad_post, base = _get_padding_torch(
+            base, kernel_size, tensor.size(dim)
+        )
 
     # To backpropagate through x
     x_pad = _padding_torch(tensor, dim, pad_pre, pad_post, padding_type=padding_type)
@@ -727,8 +831,9 @@ def _resize_1d_torch(tensor: torch.Tensor,
     return tensor
 
 
-def _downsampling_2d_torch(tensor: torch.Tensor, k: torch.Tensor, scale: int,
-                           padding_type: str = 'reflect') -> torch.Tensor:
+def _downsampling_2d_torch(
+    tensor: torch.Tensor, k: torch.Tensor, scale: int, padding_type: str = "reflect"
+) -> torch.Tensor:
     c = tensor.size(1)
     k_h = k.size(-2)
     k_w = k.size(-1)
@@ -766,7 +871,9 @@ def _nancov_torch(x):
     Return:
         cov (tensor): (B, feat_dim, feat_dim)
     """
-    assert len(x.shape) == 3, f'Shape of input should be (batch_size, row_num, feat_dim), but got {x.shape}'
+    assert (
+        len(x.shape) == 3
+    ), f"Shape of input should be (batch_size, row_num, feat_dim), but got {x.shape}"
     b, rownum, feat_dim = x.shape
     nan_mask = torch.isnan(x).any(dim=2, keepdim=True)
     x_no_nan = x.masked_select(~nan_mask).reshape(b, -1, feat_dim)
@@ -775,8 +882,7 @@ def _nancov_torch(x):
 
 
 def _nanmean_torch(v, *args, inplace=False, **kwargs):
-    r"""nanmean same as matlab function: calculate mean values by removing all nan.
-    """
+    r"""nanmean same as matlab function: calculate mean values by removing all nan."""
     if not inplace:
         v = v.clone()
     is_nan = torch.isnan(v)
@@ -795,8 +901,8 @@ def _symm_pad_torch(im: torch.Tensor, padding: List[int, int, int, int]):
     y_idx = np.arange(-top, h + bottom)
 
     def reflect(x, minx, maxx):
-        """ Reflects an array around two points making a triangular waveform that ramps up
-        and down,  allowing for pad lengths greater than the input length """
+        """Reflects an array around two points making a triangular waveform that ramps up
+        and down,  allowing for pad lengths greater than the input length"""
         rng = maxx - minx
         double_rng = 2 * rng
         mod = np.fmod(x - minx, double_rng)
@@ -810,7 +916,9 @@ def _symm_pad_torch(im: torch.Tensor, padding: List[int, int, int, int]):
     return im[..., yy, xx]
 
 
-def _blockproc_torch(x, kernel, fun, border_size=None, pad_partial=False, pad_method='zero'):
+def _blockproc_torch(
+    x, kernel, fun, border_size=None, pad_partial=False, pad_method="zero"
+):
     r"""blockproc function like matlab
     Difference:
         - Partial blocks is discarded (if exist) for fast GPU process.
@@ -824,7 +932,7 @@ def _blockproc_torch(x, kernel, fun, border_size=None, pad_partial=False, pad_me
     Return:
         results (tensor): concatenated results of each block
     """
-    assert len(x.shape) == 4, f'Shape of input has to be (b, c, h, w) but got {x.shape}'
+    assert len(x.shape) == 4, f"Shape of input has to be (b, c, h, w) but got {x.shape}"
     kernel = _to_tuple(2)(kernel)
     if pad_partial:
         b, c, h, w = x.shape
@@ -834,15 +942,15 @@ def _blockproc_torch(x, kernel, fun, border_size=None, pad_partial=False, pad_me
         pad_row = (h2 - 1) * stride[0] + kernel[0] - h
         pad_col = (w2 - 1) * stride[1] + kernel[1] - w
         padding = (0, pad_col, 0, pad_row)
-        if pad_method == 'zero':
-            x = F.pad(x, padding, mode='constant')
-        elif pad_method == 'symmetric':
+        if pad_method == "zero":
+            x = F.pad(x, padding, mode="constant")
+        elif pad_method == "symmetric":
             x = _symm_pad_torch(x, padding)
         else:
             x = F.pad(x, padding, mode=pad_method)
 
     if border_size is not None:
-        raise NotImplementedError('Blockproc with border is not implemented yet')
+        raise NotImplementedError("Blockproc with border is not implemented yet")
     else:
         b, c, h, w = x.shape
         block_size_h, block_size_w = kernel
@@ -852,21 +960,27 @@ def _blockproc_torch(x, kernel, fun, border_size=None, pad_partial=False, pad_me
         # extract blocks in (row, column) manner, i.e., stored with column first
         blocks = F.unfold(x, kernel, stride=kernel)
         blocks = blocks.reshape(b, c, *kernel, num_block_h, num_block_w)
-        blocks = blocks.permute(5, 4, 0, 1, 2, 3).reshape(num_block_h * num_block_w * b, c, *kernel)
+        blocks = blocks.permute(5, 4, 0, 1, 2, 3).reshape(
+            num_block_h * num_block_w * b, c, *kernel
+        )
 
         results = fun(blocks)
-        results = results.reshape(num_block_h * num_block_w, b, *results.shape[1:]).transpose(0, 1)
+        results = results.reshape(
+            num_block_h * num_block_w, b, *results.shape[1:]
+        ).transpose(0, 1)
         return results
 
 
-def _image_resize_torch(tensor: torch.Tensor,
-                        scale: typing.Optional[float] = None,
-                        sizes: typing.Optional[typing.Tuple[int, int]] = None,
-                        kernel: typing.Union[str, torch.Tensor] = "cubic",
-                        sigma: float = 2,
-                        rotation_degree: float = 0,
-                        padding_type: str = "reflect",
-                        antialiasing: bool = True) -> torch.Tensor:
+def _image_resize_torch(
+    tensor: torch.Tensor,
+    scale: typing.Optional[float] = None,
+    sizes: typing.Optional[typing.Tuple[int, int]] = None,
+    kernel: typing.Union[str, torch.Tensor] = "cubic",
+    sigma: float = 2,
+    rotation_degree: float = 0,
+    padding_type: str = "reflect",
+    antialiasing: bool = True,
+) -> torch.Tensor:
     """
     Args:
         tensor (torch.Tensor):
@@ -881,14 +995,14 @@ def _image_resize_torch(tensor: torch.Tensor,
         torch.Tensor:
     """
     if scale is None and sizes is None:
-        raise ValueError('One of scale or sizes must be specified!')
+        raise ValueError("One of scale or sizes must be specified!")
     if scale is not None and sizes is not None:
-        raise ValueError('Please specify scale or sizes to avoid conflict!')
+        raise ValueError("Please specify scale or sizes to avoid conflict!")
 
     tensor, b, c, h, w = _reshape_input_torch(tensor)
 
     if sizes is None and scale is not None:
-        '''
+        """
         # Check if we can apply the convolution algorithm
         scale_inv = 1 / scale
         if isinstance(kernel, str) and scale_inv.is_integer():
@@ -898,7 +1012,7 @@ def _image_resize_torch(tensor: torch.Tensor,
                 'An integer downsampling factor '
                 'should be used with a predefined kernel!'
             )
-        '''
+        """
         # Determine output size
         sizes = (math.ceil(h * scale), math.ceil(w * scale))
         scales = (scale, scale)
@@ -918,7 +1032,8 @@ def _image_resize_torch(tensor: torch.Tensor,
             kernel=kernel,
             sigma=sigma,
             padding_type=padding_type,
-            antialiasing=antialiasing)
+            antialiasing=antialiasing,
+        )
         tensor = _resize_1d_torch(
             tensor,
             -1,
@@ -927,7 +1042,8 @@ def _image_resize_torch(tensor: torch.Tensor,
             kernel=kernel,
             sigma=sigma,
             padding_type=padding_type,
-            antialiasing=antialiasing)
+            antialiasing=antialiasing,
+        )
     elif isinstance(kernel, torch.Tensor) and scale is not None:
         tensor = _downsampling_2d_torch(tensor, kernel, scale=int(1 / scale))
 
@@ -936,8 +1052,12 @@ def _image_resize_torch(tensor: torch.Tensor,
     return tensor
 
 
-def _psnr_torch(raw_tensor: torch.Tensor, dst_tensor: torch.Tensor, crop_border: int,
-                only_test_y_channel: bool) -> float:
+def _psnr_torch(
+    raw_tensor: torch.Tensor,
+    dst_tensor: torch.Tensor,
+    crop_border: int,
+    only_test_y_channel: bool,
+) -> float:
     """PyTorch implements PSNR (Peak Signal-to-Noise Ratio, peak signal-to-noise ratio) function
 
     Args:
@@ -955,8 +1075,12 @@ def _psnr_torch(raw_tensor: torch.Tensor, dst_tensor: torch.Tensor, crop_border:
 
     # crop border pixels
     if crop_border > 0:
-        raw_tensor = raw_tensor[:, :, crop_border:-crop_border, crop_border:-crop_border]
-        dst_tensor = dst_tensor[:, :, crop_border:-crop_border, crop_border:-crop_border]
+        raw_tensor = raw_tensor[
+            :, :, crop_border:-crop_border, crop_border:-crop_border
+        ]
+        dst_tensor = dst_tensor[
+            :, :, crop_border:-crop_border, crop_border:-crop_border
+        ]
 
     # Convert RGB tensor data to YCbCr tensor, and extract only Y channel data
     if only_test_y_channel:
@@ -967,8 +1091,10 @@ def _psnr_torch(raw_tensor: torch.Tensor, dst_tensor: torch.Tensor, crop_border:
     raw_tensor = raw_tensor.to(torch.float64)
     dst_tensor = dst_tensor.to(torch.float64)
 
-    mse_value = torch.mean((raw_tensor * 255.0 - dst_tensor * 255.0) ** 2 + 1e-8, dim=[1, 2, 3])
-    psnr_metrics = 10 * torch.log10_(255.0 ** 2 / mse_value)
+    mse_value = torch.mean(
+        (raw_tensor * 255.0 - dst_tensor * 255.0) ** 2 + 1e-8, dim=[1, 2, 3]
+    )
+    psnr_metrics = 10 * torch.log10_(255.0**2 / mse_value)
 
     return psnr_metrics
 
@@ -990,16 +1116,22 @@ class PSNR(nn.Module):
         self.crop_border = crop_border
         self.only_test_y_channel = only_test_y_channel
 
-    def forward(self, raw_tensor: torch.Tensor, dst_tensor: torch.Tensor) -> torch.Tensor:
-        psnr_metrics = _psnr_torch(raw_tensor, dst_tensor, self.crop_border, self.only_test_y_channel)
+    def forward(
+        self, raw_tensor: torch.Tensor, dst_tensor: torch.Tensor
+    ) -> torch.Tensor:
+        psnr_metrics = _psnr_torch(
+            raw_tensor, dst_tensor, self.crop_border, self.only_test_y_channel
+        )
 
         return psnr_metrics
 
 
-def _ssim_torch(raw_tensor: torch.Tensor,
-                dst_tensor: torch.Tensor,
-                window_size: int,
-                gaussian_kernel_window: np.ndarray) -> float:
+def _ssim_torch(
+    raw_tensor: torch.Tensor,
+    dst_tensor: torch.Tensor,
+    window_size: int,
+    gaussian_kernel_window: np.ndarray,
+) -> float:
     """PyTorch implements the SSIM (Structural Similarity) function, which only calculates single-channel data
 
     Args:
@@ -1015,24 +1147,68 @@ def _ssim_torch(raw_tensor: torch.Tensor,
     c1 = (0.01 * 255.0) ** 2
     c2 = (0.03 * 255.0) ** 2
 
-    gaussian_kernel_window = torch.from_numpy(gaussian_kernel_window).view(1, 1, window_size, window_size)
-    gaussian_kernel_window = gaussian_kernel_window.expand(raw_tensor.size(1), 1, window_size, window_size)
-    gaussian_kernel_window = gaussian_kernel_window.to(device=raw_tensor.device, dtype=raw_tensor.dtype)
+    gaussian_kernel_window = torch.from_numpy(gaussian_kernel_window).view(
+        1, 1, window_size, window_size
+    )
+    gaussian_kernel_window = gaussian_kernel_window.expand(
+        raw_tensor.size(1), 1, window_size, window_size
+    )
+    gaussian_kernel_window = gaussian_kernel_window.to(
+        device=raw_tensor.device, dtype=raw_tensor.dtype
+    )
 
-    raw_mean = F.conv2d(raw_tensor, gaussian_kernel_window, stride=(1, 1), padding=(0, 0), groups=raw_tensor.shape[1])
-    dst_mean = F.conv2d(dst_tensor, gaussian_kernel_window, stride=(1, 1), padding=(0, 0), groups=dst_tensor.shape[1])
-    raw_mean_square = raw_mean ** 2
-    dst_mean_square = dst_mean ** 2
+    raw_mean = F.conv2d(
+        raw_tensor,
+        gaussian_kernel_window,
+        stride=(1, 1),
+        padding=(0, 0),
+        groups=raw_tensor.shape[1],
+    )
+    dst_mean = F.conv2d(
+        dst_tensor,
+        gaussian_kernel_window,
+        stride=(1, 1),
+        padding=(0, 0),
+        groups=dst_tensor.shape[1],
+    )
+    raw_mean_square = raw_mean**2
+    dst_mean_square = dst_mean**2
     raw_dst_mean = raw_mean * dst_mean
-    raw_variance = F.conv2d(raw_tensor * raw_tensor, gaussian_kernel_window, stride=(1, 1), padding=(0, 0),
-                            groups=raw_tensor.shape[1]) - raw_mean_square
-    dst_variance = F.conv2d(dst_tensor * dst_tensor, gaussian_kernel_window, stride=(1, 1), padding=(0, 0),
-                            groups=raw_tensor.shape[1]) - dst_mean_square
-    raw_dst_covariance = F.conv2d(raw_tensor * dst_tensor, gaussian_kernel_window, stride=1, padding=(0, 0),
-                                  groups=raw_tensor.shape[1]) - raw_dst_mean
+    raw_variance = (
+        F.conv2d(
+            raw_tensor * raw_tensor,
+            gaussian_kernel_window,
+            stride=(1, 1),
+            padding=(0, 0),
+            groups=raw_tensor.shape[1],
+        )
+        - raw_mean_square
+    )
+    dst_variance = (
+        F.conv2d(
+            dst_tensor * dst_tensor,
+            gaussian_kernel_window,
+            stride=(1, 1),
+            padding=(0, 0),
+            groups=raw_tensor.shape[1],
+        )
+        - dst_mean_square
+    )
+    raw_dst_covariance = (
+        F.conv2d(
+            raw_tensor * dst_tensor,
+            gaussian_kernel_window,
+            stride=1,
+            padding=(0, 0),
+            groups=raw_tensor.shape[1],
+        )
+        - raw_dst_mean
+    )
 
     ssim_molecular = (2 * raw_dst_mean + c1) * (2 * raw_dst_covariance + c2)
-    ssim_denominator = (raw_mean_square + dst_mean_square + c1) * (raw_variance + dst_variance + c2)
+    ssim_denominator = (raw_mean_square + dst_mean_square + c1) * (
+        raw_variance + dst_variance + c2
+    )
 
     ssim_metrics = ssim_molecular / ssim_denominator
     ssim_metrics = torch.mean(ssim_metrics, [1, 2, 3])
@@ -1040,12 +1216,14 @@ def _ssim_torch(raw_tensor: torch.Tensor,
     return ssim_metrics
 
 
-def _ssim_single_torch(raw_tensor: torch.Tensor,
-                       dst_tensor: torch.Tensor,
-                       crop_border: int,
-                       only_test_y_channel: bool,
-                       window_size: int,
-                       gaussian_kernel_window: torch.Tensor) -> torch.Tensor:
+def _ssim_single_torch(
+    raw_tensor: torch.Tensor,
+    dst_tensor: torch.Tensor,
+    crop_border: int,
+    only_test_y_channel: bool,
+    window_size: int,
+    gaussian_kernel_window: torch.Tensor,
+) -> torch.Tensor:
     """PyTorch implements the SSIM (Structural Similarity) function, which only calculates single-channel data
 
     Args:
@@ -1065,8 +1243,12 @@ def _ssim_single_torch(raw_tensor: torch.Tensor,
 
     # crop border pixels
     if crop_border > 0:
-        raw_tensor = raw_tensor[:, :, crop_border:-crop_border, crop_border:-crop_border]
-        dst_tensor = dst_tensor[:, :, crop_border:-crop_border, crop_border:-crop_border]
+        raw_tensor = raw_tensor[
+            :, :, crop_border:-crop_border, crop_border:-crop_border
+        ]
+        dst_tensor = dst_tensor[
+            :, :, crop_border:-crop_border, crop_border:-crop_border
+        ]
 
     # Convert RGB tensor data to YCbCr tensor, and extract only Y channel data
     if only_test_y_channel:
@@ -1077,7 +1259,9 @@ def _ssim_single_torch(raw_tensor: torch.Tensor,
     raw_tensor = raw_tensor.to(torch.float64)
     dst_tensor = dst_tensor.to(torch.float64)
 
-    ssim_metrics = _ssim_torch(raw_tensor * 255.0, dst_tensor * 255.0, window_size, gaussian_kernel_window)
+    ssim_metrics = _ssim_torch(
+        raw_tensor * 255.0, dst_tensor * 255.0, window_size, gaussian_kernel_window
+    )
 
     return ssim_metrics
 
@@ -1096,31 +1280,41 @@ class SSIM(nn.Module):
 
     """
 
-    def __init__(self, crop_border: int,
-                 only_only_test_y_channel: bool,
-                 window_size: int = 11,
-                 gaussian_sigma: float = 1.5) -> None:
+    def __init__(
+        self,
+        crop_border: int,
+        only_only_test_y_channel: bool,
+        window_size: int = 11,
+        gaussian_sigma: float = 1.5,
+    ) -> None:
         super().__init__()
         self.crop_border = crop_border
         self.only_test_y_channel = only_only_test_y_channel
         self.window_size = window_size
 
         gaussian_kernel = cv2.getGaussianKernel(window_size, gaussian_sigma)
-        self.gaussian_kernel_window = np.outer(gaussian_kernel, gaussian_kernel.transpose())
+        self.gaussian_kernel_window = np.outer(
+            gaussian_kernel, gaussian_kernel.transpose()
+        )
 
-    def forward(self, raw_tensor: torch.Tensor, dst_tensor: torch.Tensor) -> torch.Tensor:
-        ssim_metrics = _ssim_single_torch(raw_tensor,
-                                          dst_tensor,
-                                          self.crop_border,
-                                          self.only_test_y_channel,
-                                          self.window_size,
-                                          self.gaussian_kernel_window)
+    def forward(
+        self, raw_tensor: torch.Tensor, dst_tensor: torch.Tensor
+    ) -> torch.Tensor:
+        ssim_metrics = _ssim_single_torch(
+            raw_tensor,
+            dst_tensor,
+            self.crop_border,
+            self.only_test_y_channel,
+            self.window_size,
+            self.gaussian_kernel_window,
+        )
 
         return ssim_metrics
 
 
-def _estimate_aggd_parameters_torch(tensor: torch.Tensor,
-                                    get_sigma: bool) -> List[torch.Tensor, torch.Tensor, torch.Tensor]:
+def _estimate_aggd_parameters_torch(
+    tensor: torch.Tensor, get_sigma: bool
+) -> List[torch.Tensor, torch.Tensor, torch.Tensor]:
     """PyTorch implements the BRISQUE (Blind/Referenceless Image Spatial Quality Evaluator) function
     This function is used to estimate an asymmetric generalized Gaussian distribution
 
@@ -1140,7 +1334,10 @@ def _estimate_aggd_parameters_torch(tensor: torch.Tensor,
     """
     # The following is obtained according to the formula and the method provided in the paper on WIki encyclopedia
     aggd = torch.arange(0.2, 10 + 0.001, 0.001).to(tensor)
-    r_gam = (2 * torch.lgamma(2. / aggd) - (torch.lgamma(1. / aggd) + torch.lgamma(3. / aggd))).exp()
+    r_gam = (
+        2 * torch.lgamma(2.0 / aggd)
+        - (torch.lgamma(1.0 / aggd) + torch.lgamma(3.0 / aggd))
+    ).exp()
     r_gam = r_gam.repeat(tensor.size(0), 1)
 
     mask_left = tensor < 0
@@ -1148,20 +1345,34 @@ def _estimate_aggd_parameters_torch(tensor: torch.Tensor,
     count_left = mask_left.sum(dim=(-1, -2), dtype=torch.float32)
     count_right = mask_right.sum(dim=(-1, -2), dtype=torch.float32)
 
-    left_std = torch.sqrt_((tensor * mask_left).pow(2).sum(dim=(-1, -2)) / (count_left + 1e-8))
-    right_std = torch.sqrt_((tensor * mask_right).pow(2).sum(dim=(-1, -2)) / (count_right + 1e-8))
+    left_std = torch.sqrt_(
+        (tensor * mask_left).pow(2).sum(dim=(-1, -2)) / (count_left + 1e-8)
+    )
+    right_std = torch.sqrt_(
+        (tensor * mask_right).pow(2).sum(dim=(-1, -2)) / (count_right + 1e-8)
+    )
     gamma_hat = left_std / right_std
     rhat = tensor.abs().mean(dim=(-1, -2)).pow(2) / tensor.pow(2).mean(dim=(-1, -2))
-    rhat_norm = (rhat * (gamma_hat.pow(3) + 1) * (gamma_hat + 1)) / (gamma_hat.pow(2) + 1).pow(2)
+    rhat_norm = (rhat * (gamma_hat.pow(3) + 1) * (gamma_hat + 1)) / (
+        gamma_hat.pow(2) + 1
+    ).pow(2)
 
     array_position = (r_gam - rhat_norm).abs().argmin(dim=-1)
     aggd_parameters = aggd[array_position]
 
     if get_sigma:
-        left_beta = left_std.squeeze(-1) * (
-                torch.lgamma(1 / aggd_parameters) - torch.lgamma(3 / aggd_parameters)).exp().sqrt()
-        right_beta = right_std.squeeze(-1) * (
-                torch.lgamma(1 / aggd_parameters) - torch.lgamma(3 / aggd_parameters)).exp().sqrt()
+        left_beta = (
+            left_std.squeeze(-1)
+            * (torch.lgamma(1 / aggd_parameters) - torch.lgamma(3 / aggd_parameters))
+            .exp()
+            .sqrt()
+        )
+        right_beta = (
+            right_std.squeeze(-1)
+            * (torch.lgamma(1 / aggd_parameters) - torch.lgamma(3 / aggd_parameters))
+            .exp()
+            .sqrt()
+        )
         return aggd_parameters, left_beta, right_beta
 
     else:
@@ -1186,14 +1397,20 @@ def _get_mscn_feature_torch(tensor: torch.Tensor) -> np.ndarray:
     """
     batch_size = tensor.shape[0]
     aggd_block = tensor[:, [0]]
-    aggd_parameters, left_beta, right_beta = _estimate_aggd_parameters_torch(aggd_block, True)
+    aggd_parameters, left_beta, right_beta = _estimate_aggd_parameters_torch(
+        aggd_block, True
+    )
     feature = [aggd_parameters, (left_beta + right_beta) / 2]
 
     shifts = [[0, 1], [1, 0], [1, 1], [1, -1]]
     for i in range(len(shifts)):
         shifted_block = torch.roll(aggd_block, shifts[i], dims=(2, 3))
-        aggd_parameters, left_beta, right_beta = _estimate_aggd_parameters_torch(aggd_block * shifted_block, True)
-        mean = (right_beta - left_beta) * (torch.lgamma(2 / aggd_parameters) - torch.lgamma(1 / aggd_parameters)).exp()
+        aggd_parameters, left_beta, right_beta = _estimate_aggd_parameters_torch(
+            aggd_block * shifted_block, True
+        )
+        mean = (right_beta - left_beta) * (
+            torch.lgamma(2 / aggd_parameters) - torch.lgamma(1 / aggd_parameters)
+        ).exp()
         feature.extend((aggd_parameters, mean, left_beta, right_beta))
 
     feature = [x.reshape(batch_size, 1) for x in feature]
@@ -1202,14 +1419,16 @@ def _get_mscn_feature_torch(tensor: torch.Tensor) -> np.ndarray:
     return feature
 
 
-def _fit_mscn_ipac_torch(tensor: torch.Tensor,
-                         mu_pris_param: torch.Tensor,
-                         cov_pris_param: torch.Tensor,
-                         block_size_height: int,
-                         block_size_width: int,
-                         kernel_size: int = 7,
-                         kernel_sigma: float = 7. / 6,
-                         padding: str = "replicate") -> float:
+def _fit_mscn_ipac_torch(
+    tensor: torch.Tensor,
+    mu_pris_param: torch.Tensor,
+    cov_pris_param: torch.Tensor,
+    block_size_height: int,
+    block_size_width: int,
+    kernel_size: int = 7,
+    kernel_sigma: float = 7.0 / 6,
+    padding: str = "replicate",
+) -> float:
     """PyTorch implements the NIQE (Natural Image Quality Evaluator) function,
     This function is used to fit the inner product of adjacent coefficients of MSCN
 
@@ -1234,23 +1453,31 @@ def _fit_mscn_ipac_torch(tensor: torch.Tensor,
     b, c, h, w = tensor.shape
     num_block_height = math.floor(h / block_size_height)
     num_block_width = math.floor(w / block_size_width)
-    tensor = tensor[..., 0:num_block_height * block_size_height, 0:num_block_width * block_size_width]
+    tensor = tensor[
+        ...,
+        0 : num_block_height * block_size_height,
+        0 : num_block_width * block_size_width,
+    ]
 
     distparam = []
     for scale in (1, 2):
         kernel = _fspecial_gaussian_torch(kernel_size, kernel_sigma, 1).to(tensor)
         mu = _image_filter(tensor, kernel, padding=padding)
-        std = _image_filter(tensor ** 2, kernel, padding=padding)
-        sigma = torch.sqrt_((std - mu ** 2).abs() + 1e-8)
+        std = _image_filter(tensor**2, kernel, padding=padding)
+        sigma = torch.sqrt_((std - mu**2).abs() + 1e-8)
         structdis = (tensor - mu) / (sigma + 1)
 
-        distparam.append(_blockproc_torch(structdis,
-                                          [block_size_height // scale, block_size_width // scale],
-                                          fun=_get_mscn_feature_torch))
+        distparam.append(
+            _blockproc_torch(
+                structdis,
+                [block_size_height // scale, block_size_width // scale],
+                fun=_get_mscn_feature_torch,
+            )
+        )
 
         if scale == 1:
-            tensor = _image_resize_torch(tensor / 255., scale=0.5, antialiasing=True)
-            tensor = tensor * 255.
+            tensor = _image_resize_torch(tensor / 255.0, scale=0.5, antialiasing=True)
+            tensor = tensor * 255.0
 
     distparam = torch.cat(distparam, -1)
 
@@ -1260,18 +1487,21 @@ def _fit_mscn_ipac_torch(tensor: torch.Tensor,
 
     invcov_param = torch.linalg.pinv((cov_pris_param + cov_distparam) / 2)
     diff = (mu_pris_param - mu_distparam).unsqueeze(1)
-    niqe_metric = torch.bmm(torch.bmm(diff, invcov_param), diff.transpose(1, 2)).squeeze()
+    niqe_metric = torch.bmm(
+        torch.bmm(diff, invcov_param), diff.transpose(1, 2)
+    ).squeeze()
     niqe_metric = torch.sqrt(niqe_metric)
 
     return niqe_metric
 
 
-def _niqe_torch(tensor: torch.Tensor,
-                crop_border: int,
-                niqe_model_path: str = None,
-                block_size_height: int = 96,
-                block_size_width: int = 96
-                ) -> torch.Tensor:
+def _niqe_torch(
+    tensor: torch.Tensor,
+    crop_border: int,
+    niqe_model_path: str = None,
+    block_size_height: int = 96,
+    block_size_width: int = 96,
+) -> torch.Tensor:
     """PyTorch implements the NIQE (Natural Image Quality Evaluator) function,
 
     Attributes:
@@ -1291,7 +1521,9 @@ def _niqe_torch(tensor: torch.Tensor,
 
     # 加载NIQE特征提取模型
     if niqe_model_path is None:
-        niqe_model = scipy.io.loadmat(os.path.join("results", "pretrained_models", "niqe_model.mat"))
+        niqe_model = scipy.io.loadmat(
+            os.path.join("results", "pretrained_models", "niqe_model.mat")
+        )
     else:
         niqe_model = scipy.io.loadmat(niqe_model_path)
 
@@ -1311,11 +1543,9 @@ def _niqe_torch(tensor: torch.Tensor,
     # Convert data type to torch.float64 bit
     y_tensor = y_tensor.to(torch.float64)
 
-    niqe_metric = _fit_mscn_ipac_torch(y_tensor,
-                                       mu_pris_param,
-                                       cov_pris_param,
-                                       block_size_height,
-                                       block_size_width)
+    niqe_metric = _fit_mscn_ipac_torch(
+        y_tensor, mu_pris_param, cov_pris_param, block_size_height, block_size_width
+    )
 
     return niqe_metric
 
@@ -1334,10 +1564,13 @@ class NIQE(nn.Module):
 
     """
 
-    def __init__(self, crop_border: int,
-                 niqe_model_path: str,
-                 block_size_height: int = 96,
-                 block_size_width: int = 96) -> None:
+    def __init__(
+        self,
+        crop_border: int,
+        niqe_model_path: str,
+        block_size_height: int = 96,
+        block_size_width: int = 96,
+    ) -> None:
         super().__init__()
         self.crop_border = crop_border
         self.niqe_model_path = niqe_model_path
@@ -1345,10 +1578,12 @@ class NIQE(nn.Module):
         self.block_size_width = block_size_width
 
     def forward(self, raw_tensor: torch.Tensor) -> torch.Tensor:
-        niqe_metrics = _niqe_torch(raw_tensor,
-                                   self.crop_border,
-                                   self.niqe_model_path,
-                                   self.block_size_height,
-                                   self.block_size_width)
+        niqe_metrics = _niqe_torch(
+            raw_tensor,
+            self.crop_border,
+            self.niqe_model_path,
+            self.block_size_height,
+            self.block_size_width,
+        )
 
         return niqe_metrics

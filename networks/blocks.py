@@ -1,6 +1,7 @@
 import torch
 from torch import nn
 
+
 class ResidualDenseBlock(nn.Module):
     """Achieves densely connected convolutional layers.
     `Densely Connected Convolutional Networks <https://arxiv.org/pdf/1608.06993v5.pdf>` paper.
@@ -12,11 +13,21 @@ class ResidualDenseBlock(nn.Module):
 
     def __init__(self, channels: int, growth_channels: int) -> None:
         super(ResidualDenseBlock, self).__init__()
-        self.conv1 = nn.Conv2d(channels + growth_channels * 0, growth_channels, (3, 3), (1, 1), (1, 1))
-        self.conv2 = nn.Conv2d(channels + growth_channels * 1, growth_channels, (3, 3), (1, 1), (1, 1))
-        self.conv3 = nn.Conv2d(channels + growth_channels * 2, growth_channels, (3, 3), (1, 1), (1, 1))
-        self.conv4 = nn.Conv2d(channels + growth_channels * 3, growth_channels, (3, 3), (1, 1), (1, 1))
-        self.conv5 = nn.Conv2d(channels + growth_channels * 4, channels, (3, 3), (1, 1), (1, 1))
+        self.conv1 = nn.Conv2d(
+            channels + growth_channels * 0, growth_channels, (3, 3), (1, 1), (1, 1)
+        )
+        self.conv2 = nn.Conv2d(
+            channels + growth_channels * 1, growth_channels, (3, 3), (1, 1), (1, 1)
+        )
+        self.conv3 = nn.Conv2d(
+            channels + growth_channels * 2, growth_channels, (3, 3), (1, 1), (1, 1)
+        )
+        self.conv4 = nn.Conv2d(
+            channels + growth_channels * 3, growth_channels, (3, 3), (1, 1), (1, 1)
+        )
+        self.conv5 = nn.Conv2d(
+            channels + growth_channels * 4, channels, (3, 3), (1, 1), (1, 1)
+        )
 
         self.leaky_relu = nn.LeakyReLU(0.2, True)
         self.identity = nn.Identity()

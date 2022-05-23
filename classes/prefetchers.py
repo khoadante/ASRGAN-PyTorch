@@ -1,6 +1,7 @@
 import torch
 from torch.utils.data import DataLoader
 
+
 class CPUPrefetcher:
     """Use the CPU side to accelerate data reading.
 
@@ -54,7 +55,9 @@ class CUDAPrefetcher:
         with torch.cuda.stream(self.stream):
             for k, v in self.batch_data.items():
                 if torch.is_tensor(v):
-                    self.batch_data[k] = self.batch_data[k].to(self.device, non_blocking=True)
+                    self.batch_data[k] = self.batch_data[k].to(
+                        self.device, non_blocking=True
+                    )
 
     def next(self):
         torch.cuda.current_stream().wait_stream(self.stream)

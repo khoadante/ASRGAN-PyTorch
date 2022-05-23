@@ -8,9 +8,14 @@ degradation_model_parameters = {
     "sinc_kernel_size": 21,
     "gaussian_kernel_range": [7, 9, 11, 13, 15, 17, 19, 21],
     "gaussian_kernel_size1": 21,
-    "gaussian_kernel_type": ["isotropic", "anisotropic",
-                             "generalized_isotropic", "generalized_anisotropic",
-                             "plateau_isotropic", "plateau_anisotropic"],
+    "gaussian_kernel_type": [
+        "isotropic",
+        "anisotropic",
+        "generalized_isotropic",
+        "generalized_anisotropic",
+        "plateau_isotropic",
+        "plateau_anisotropic",
+    ],
     # First-order degradation parameters
     "gaussian_kernel_probability1": [0.45, 0.25, 0.12, 0.03, 0.12, 0.03],
     "sinc_kernel_probability1": 0.1,
@@ -118,7 +123,13 @@ if mode == "train_asrgan":
     epochs = 500
 
     # Feature extraction layer parameter configuration
-    feature_model_extractor_nodes = ["features.2", "features.7", "features.16", "features.25", "features.34"]
+    feature_model_extractor_nodes = [
+        "features.2",
+        "features.7",
+        "features.16",
+        "features.25",
+        "features.34",
+    ]
     feature_model_normalize_mean = [0.485, 0.456, 0.406]
     feature_model_normalize_std = [0.229, 0.224, 0.225]
 
@@ -133,7 +144,12 @@ if mode == "train_asrgan":
     ema_model_weight_decay = 0.999
 
     # Dynamically adjust the learning rate policy
-    lr_scheduler_milestones = [int(epochs * 0.125), int(epochs * 0.250), int(epochs * 0.500), int(epochs * 0.750)]
+    lr_scheduler_milestones = [
+        int(epochs * 0.125),
+        int(epochs * 0.250),
+        int(epochs * 0.500),
+        int(epochs * 0.750),
+    ]
     lr_scheduler_gamma = 0.5
 
     # How many iterations to print the training result

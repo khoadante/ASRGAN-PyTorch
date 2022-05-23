@@ -448,14 +448,16 @@ def train(
         batch_index += 1
 
 
-def validate(model: nn.Module,
-             ema_model: nn.Module,
-             data_prefetcher: CUDAPrefetcher,
-             epoch: int,
-             writer: SummaryWriter,
-             psnr_model: nn.Module,
-             ssim_model: nn.Module,
-             mode: str) -> List[float, float]:
+def validate(
+    model: nn.Module,
+    ema_model: nn.Module,
+    data_prefetcher: CUDAPrefetcher,
+    epoch: int,
+    writer: SummaryWriter,
+    psnr_model: nn.Module,
+    ssim_model: nn.Module,
+    mode: str,
+) -> List[float, float]:
     """Test main program
 
     Args:
@@ -474,7 +476,9 @@ def validate(model: nn.Module,
     batch_time = AverageMeter("Time", ":6.3f")
     psnres = AverageMeter("PSNR", ":4.2f")
     ssimes = AverageMeter("SSIM", ":4.4f")
-    progress = ProgressMeter(len(data_prefetcher), [batch_time, psnres, ssimes], prefix=f"{mode}: ")
+    progress = ProgressMeter(
+        len(data_prefetcher), [batch_time, psnres, ssimes], prefix=f"{mode}: "
+    )
 
     # Restore the model before the EMA
     ema_model.apply_shadow()
@@ -493,8 +497,16 @@ def validate(model: nn.Module,
 
     with torch.no_grad():
         while batch_data is not None:
-            lr = batch_data["lr"].to(device=config.device, memory_format=torch.channels_last, non_blocking=True)
-            hr = batch_data["hr"].to(device=config.device, memory_format=torch.channels_last, non_blocking=True)
+            lr = batch_data["lr"].to(
+                device=config.device,
+                memory_format=torch.channels_last,
+                non_blocking=True,
+            )
+            hr = batch_data["hr"].to(
+                device=config.device,
+                memory_format=torch.channels_last,
+                non_blocking=True,
+            )
 
             # Mixed precision
             with amp.autocast():

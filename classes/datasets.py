@@ -23,7 +23,7 @@ class TrainDataset(Dataset):
     """
 
     def __init__(
-        self, image_dir: str, upscale_factor: int, degradation_parameters: dict
+        self, image_dir: str, upscale_factor: int, degradation_model_parameters: dict
     ) -> None:
         super(TrainDataset, self).__init__()
         # Get all image file names in folder
@@ -32,7 +32,7 @@ class TrainDataset(Dataset):
             for image_file_name in os.listdir(image_dir)
         ]
         # Define degradation model parameters
-        self.parameters = degradation_parameters
+        self.parameters = degradation_model_parameters
         # Define the size of the sinc filter kernel
         self.sinc_tensor = torch.zeros(
             [self.parameters["sinc_kernel_size"], self.parameters["sinc_kernel_size"]]
@@ -162,7 +162,7 @@ class ValidDataset(Dataset):
         image_dir: str,
         image_size: int,
         upscale_factor: int,
-        degradation_model_parameters_dict: dict,
+        degradation_model_parameters: dict,
     ) -> None:
         super(ValidDataset, self).__init__()
         # Get all image file names in folder
@@ -173,7 +173,7 @@ class ValidDataset(Dataset):
         # Specify the high-resolution image size, with equal length and width
         self.image_size = image_size
         # Define degradation model parameters
-        self.parameters = degradation_model_parameters_dict
+        self.parameters = degradation_model_parameters
         # Define the size of the sinc filter kernel
         self.sinc_tensor = torch.zeros(
             [self.parameters["sinc_kernel_size"], self.parameters["sinc_kernel_size"]]

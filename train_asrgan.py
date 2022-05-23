@@ -312,22 +312,22 @@ def train(
         # Gaussian blur
         if (
             np.random.uniform()
-            <= config.degradation_process_parameters_dict["first_blur_probability"]
+            <= config.degradation_process_parameters["first_blur_probability"]
         ):
             out = imgproc.blur(out, kernel1)
 
         # Resize
         updown_type = random.choices(
             ["up", "down", "keep"],
-            config.degradation_process_parameters_dict["resize_probability1"],
+            config.degradation_process_parameters["resize_probability1"],
         )[0]
         if updown_type == "up":
             scale = np.random.uniform(
-                1, config.degradation_process_parameters_dict["resize_range1"][1]
+                1, config.degradation_process_parameters["resize_range1"][1]
             )
         elif updown_type == "down":
             scale = np.random.uniform(
-                config.degradation_process_parameters_dict["resize_range1"][0], 1
+                config.degradation_process_parameters["resize_range1"][0], 1
             )
         else:
             scale = 1
@@ -337,24 +337,24 @@ def train(
         # Noise
         if (
             np.random.uniform()
-            < config.degradation_process_parameters_dict["gaussian_noise_probability1"]
+            < config.degradation_process_parameters["gaussian_noise_probability1"]
         ):
             out = imgproc.random_add_gaussian_noise_pt(
                 image=out,
-                sigma_range=config.degradation_process_parameters_dict["noise_range1"],
+                sigma_range=config.degradation_process_parameters["noise_range1"],
                 clip=True,
                 rounds=False,
-                gray_prob=config.degradation_process_parameters_dict[
+                gray_prob=config.degradation_process_parameters[
                     "gray_noise_probability1"
                 ],
             )
         else:
             out = imgproc.random_add_poisson_noise_pt(
                 image=out,
-                scale_range=config.degradation_process_parameters_dict[
+                scale_range=config.degradation_process_parameters[
                     "poisson_scale_range1"
                 ],
-                gray_prob=config.degradation_process_parameters_dict[
+                gray_prob=config.degradation_process_parameters[
                     "gray_noise_probability1"
                 ],
                 clip=True,
@@ -363,7 +363,7 @@ def train(
 
         # JPEG
         quality = out.new_zeros(out.size(0)).uniform_(
-            *config.degradation_process_parameters_dict["jpeg_range1"]
+            *config.degradation_process_parameters["jpeg_range1"]
         )
         out = torch.clamp(
             out, 0, 1
@@ -374,22 +374,22 @@ def train(
         # Gaussian blur
         if (
             np.random.uniform()
-            < config.degradation_process_parameters_dict["second_blur_probability"]
+            < config.degradation_process_parameters["second_blur_probability"]
         ):
             out = imgproc.blur(out, kernel2)
 
         # Resize
         updown_type = random.choices(
             ["up", "down", "keep"],
-            config.degradation_process_parameters_dict["resize_probability2"],
+            config.degradation_process_parameters["resize_probability2"],
         )[0]
         if updown_type == "up":
             scale = np.random.uniform(
-                1, config.degradation_process_parameters_dict["resize_range2"][1]
+                1, config.degradation_process_parameters["resize_range2"][1]
             )
         elif updown_type == "down":
             scale = np.random.uniform(
-                config.degradation_process_parameters_dict["resize_range2"][0], 1
+                config.degradation_process_parameters["resize_range2"][0], 1
             )
         else:
             scale = 1
@@ -406,24 +406,24 @@ def train(
         # Noise
         if (
             np.random.uniform()
-            < config.degradation_process_parameters_dict["gaussian_noise_probability2"]
+            < config.degradation_process_parameters["gaussian_noise_probability2"]
         ):
             out = imgproc.random_add_gaussian_noise_pt(
                 image=out,
-                sigma_range=config.degradation_process_parameters_dict["noise_range2"],
+                sigma_range=config.degradation_process_parameters["noise_range2"],
                 clip=True,
                 rounds=False,
-                gray_prob=config.degradation_process_parameters_dict[
+                gray_prob=config.degradation_process_parameters[
                     "gray_noise_probability2"
                 ],
             )
         else:
             out = imgproc.random_add_poisson_noise_pt(
                 image=out,
-                scale_range=config.degradation_process_parameters_dict[
+                scale_range=config.degradation_process_parameters[
                     "poisson_scale_range2"
                 ],
-                gray_prob=config.degradation_process_parameters_dict[
+                gray_prob=config.degradation_process_parameters[
                     "gray_noise_probability2"
                 ],
                 clip=True,
@@ -445,14 +445,14 @@ def train(
 
             # JPEG
             quality = out.new_zeros(out.size(0)).uniform_(
-                *config.degradation_process_parameters_dict["jpeg_range2"]
+                *config.degradation_process_parameters["jpeg_range2"]
             )
             out = torch.clamp(out, 0, 1)
             out = jpeg_operation(out, quality=quality)
         else:
             # JPEG
             quality = out.new_zeros(out.size(0)).uniform_(
-                *config.degradation_process_parameters_dict["jpeg_range2"]
+                *config.degradation_process_parameters["jpeg_range2"]
             )
             out = torch.clamp(out, 0, 1)
             out = jpeg_operation(out, quality=quality)

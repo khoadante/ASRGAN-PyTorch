@@ -18,7 +18,7 @@ class TrainDataset(Dataset):
         upscale_factor (int): Image up scale factor.
         mode (str): Data set loading method, the training dataset is for data enhancement,
             and the verification data set is not for data enhancement.
-        degradation_model_parameters_dict (dict): Parameter dictionary with degenerate model
+        degradation_model_parameters (dict): Parameter dictionary with degenerate model
 
     """
 
@@ -153,7 +153,7 @@ class ValidDataset(Dataset):
         upscale_factor (int): Image up scale factor.
         mode (str): Data set loading method, the training dataset is for data enhancement,
             and the verification data set is not for data enhancement.
-        degradation_model_parameters_dict (dict): Parameter dictionary with degenerate model
+        degradation_model_parameters (dict): Parameter dictionary with degenerate model
 
     """
 

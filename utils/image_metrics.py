@@ -348,8 +348,8 @@ def niqe(
     image: np.ndarray,
     crop_border: int,
     niqe_model_path: str,
-    block_size_height: int = 32,
-    block_size_width: int = 32,
+    block_size_height: int = 48,
+    block_size_width: int = 48,
 ) -> float:
     """Python implements the NIQE (Natural Image Quality Evaluator) function,
     This function computes single/multi-channel data

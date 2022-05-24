@@ -6,3 +6,9 @@ git clone https://github.com/khoadante/ASRGAN.git
 cd ASRGAN/
 
 python setup.py
+
+1x NVIDIA V100 16GB
+16 GB RAM
+8 vCPUs
+80 GB
+48 x 3 x 128 x 128

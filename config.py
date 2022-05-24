@@ -99,7 +99,7 @@ if mode == "train_asrnet":
     lr_scheduler_gamma = 0.5
 
     # How many iterations to print the training result
-    print_frequency = 200
+    print_frequency = 10
 
 if mode == "train_asrgan":
     # Dataset address
@@ -151,7 +151,7 @@ if mode == "train_asrgan":
     lr_scheduler_gamma = 0.5
 
     # How many iterations to print the training result
-    print_frequency = 200
+    print_frequency = 10
 
 if mode == "valid":
     # Test data address

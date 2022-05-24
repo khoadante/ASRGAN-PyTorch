@@ -80,7 +80,7 @@ if mode == "train_asrnet":
     test_hr_image_dir = f"datasets/Set5/GTmod12"
 
     image_size = 256
-    batch_size = 16
+    batch_size = 8
 
     # Incremental training and migration training
     resume = ""
@@ -108,7 +108,7 @@ if mode == "train_asrgan":
     test_hr_image_dir = f"datasets/Set5/GTmod12"
 
     image_size = 256
-    batch_size = 16
+    batch_size = 8
 
     # Incremental training and migration training
     resume = "results/ASRNet_baseline/g_last.pth.tar"

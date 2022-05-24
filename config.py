@@ -72,15 +72,15 @@ mode = "train_asrnet"
 # Experiment name, easy to save weights and log files
 exp_name = "ASRNet_baseline"
 
+image_size = 128
+batch_size = 32
+
 if mode == "train_asrnet":
     # Dataset address
     train_image_dir = "datasets/DIV2K/ASRGAN/train"
     valid_image_dir = "datasets/DIV2K/ASRGAN/valid"
     test_lr_image_dir = f"datasets/Set5/LRbicx{upscale_factor}"
     test_hr_image_dir = f"datasets/Set5/GTmod12"
-
-    image_size = 256
-    batch_size = 4
 
     # Incremental training and migration training
     resume = ""
@@ -106,9 +106,6 @@ if mode == "train_asrgan":
     valid_image_dir = "datasets/DIV2K/ASRGAN/valid"
     test_lr_image_dir = f"datasets/Set5/LRbicx{upscale_factor}"
     test_hr_image_dir = f"datasets/Set5/GTmod12"
-
-    image_size = 256
-    batch_size = 4
 
     # Incremental training and migration training
     resume = "results/ASRNet_baseline/g_last.pth.tar"

@@ -348,8 +348,8 @@ def niqe(
     image: np.ndarray,
     crop_border: int,
     niqe_model_path: str,
-    block_size_height: int = 96,
-    block_size_width: int = 96,
+    block_size_height: int = 48,
+    block_size_width: int = 48,
 ) -> float:
     """Python implements the NIQE (Natural Image Quality Evaluator) function,
     This function computes single/multi-channel data
@@ -1492,8 +1492,8 @@ def _niqe_torch(
     tensor: torch.Tensor,
     crop_border: int,
     niqe_model_path: str,
-    block_size_height: int = 96,
-    block_size_width: int = 96,
+    block_size_height: int = 48,
+    block_size_width: int = 48,
 ) -> torch.Tensor:
     """PyTorch implements the NIQE (Natural Image Quality Evaluator) function,
 
@@ -1556,8 +1556,8 @@ class NIQE(nn.Module):
         self,
         crop_border: int,
         niqe_model_path: str,
-        block_size_height: int = 96,
-        block_size_width: int = 96,
+        block_size_height: int = 48,
+        block_size_width: int = 48,
     ) -> None:
         super().__init__()
         self.crop_border = crop_border

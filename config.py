@@ -5,7 +5,7 @@ import torch
 from torch.backends import cudnn
 
 
-image_size = 128
+image_size = 96
 batch_size = 64
 
 # Current configuration parameter method

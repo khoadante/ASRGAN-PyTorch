@@ -11,4 +11,5 @@ python setup.py
 16 GB RAM
 8 vCPUs
 80 GB
+
 48 x 3 x 128 x 128 | 64 x 3 x 96 x 96

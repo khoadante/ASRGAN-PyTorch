@@ -1,13 +1,16 @@
 numpy
 opencv-python
 scipy
+tensorboard
 torch
 torchvision
 tqdm
 
 # numpy==1.22.4
 # opencv-python==4.5.5.64
+# platformdirs==2.5.2
 # scipy==1.8.1
-# torch==1.11.0
-# torchvision==0.12.0
+# tensorboard==2.9.0
+# torch==1.11.0+cpu
+# torchvision==0.12.0+cpu
 # tqdm==4.64.0

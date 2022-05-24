@@ -6,7 +6,7 @@ from torch.backends import cudnn
 
 
 image_size = 128
-batch_size = 48
+batch_size = 64
 
 # Current configuration parameter method
 mode = "train_asrnet"

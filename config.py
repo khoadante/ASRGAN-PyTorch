@@ -79,8 +79,8 @@ if mode == "train_asrnet":
     test_lr_image_dir = f"datasets/Set5/LRbicx{upscale_factor}"
     test_hr_image_dir = f"datasets/Set5/GTmod12"
 
-    image_size = 96
-    batch_size = 64
+    image_size = 256
+    batch_size = 48
 
     # Incremental training and migration training
     resume = ""
@@ -107,8 +107,8 @@ if mode == "train_asrgan":
     test_lr_image_dir = f"datasets/Set5/LRbicx{upscale_factor}"
     test_hr_image_dir = f"datasets/Set5/GTmod12"
 
-    image_size = 96
-    batch_size = 64
+    image_size = 256
+    batch_size = 48
 
     # Incremental training and migration training
     resume = "results/ASRNet_baseline/g_last.pth.tar"

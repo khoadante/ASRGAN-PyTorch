@@ -1,3 +1,4 @@
+import os
 import config
 from typing import List
 from torch.utils.data import DataLoader
@@ -25,7 +26,7 @@ def load_datasets() -> List[CUDAPrefetcher]:
         train_datasets,
         batch_size=config.batch_size,
         shuffle=True,
-        num_workers=config.num_workers,
+        num_workers=os.cpu_count(),
         pin_memory=True,
         drop_last=True,
         persistent_workers=True,

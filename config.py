@@ -81,7 +81,6 @@ if mode == "train_asrnet":
 
     image_size = 96
     batch_size = 32
-    num_workers = 2
 
     # Incremental training and migration training
     resume = ""
@@ -110,7 +109,6 @@ if mode == "train_asrgan":
 
     image_size = 96
     batch_size = 32
-    num_workers = 2
 
     # Incremental training and migration training
     resume = "results/ASRNet_baseline/g_last.pth.tar"

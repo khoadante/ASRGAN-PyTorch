@@ -4,6 +4,13 @@ import numpy as np
 import torch
 from torch.backends import cudnn
 
+
+image_size = 128
+batch_size = 48
+
+# Current configuration parameter method
+mode = "train_asrnet"
+
 degradation_model_parameters = {
     "sinc_kernel_size": 21,
     "gaussian_kernel_range": [7, 9, 11, 13, 15, 17, 19, 21],
@@ -67,13 +74,8 @@ niqe_model_path = "results/pretrained_models/niqe_model.mat"
 in_channels = 3
 out_channels = 3
 upscale_factor = 4
-# Current configuration parameter method
-mode = "train_asrnet"
 # Experiment name, easy to save weights and log files
 exp_name = "ASRNet_baseline"
-
-image_size = 128
-batch_size = 32
 
 if mode == "train_asrnet":
     # Dataset address

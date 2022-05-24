@@ -80,13 +80,13 @@ if mode == "train_asrnet":
     test_hr_image_dir = f"datasets/Set5/GTmod12"
 
     image_size = 256
-    batch_size = 8
+    batch_size = 4
 
     # Incremental training and migration training
     resume = ""
 
     # Total num epochs
-    epochs = 200
+    epochs = 10
 
     # Optimizer parameter
     model_lr = 2e-4
@@ -108,7 +108,7 @@ if mode == "train_asrgan":
     test_hr_image_dir = f"datasets/Set5/GTmod12"
 
     image_size = 256
-    batch_size = 8
+    batch_size = 4
 
     # Incremental training and migration training
     resume = "results/ASRNet_baseline/g_last.pth.tar"
@@ -116,7 +116,7 @@ if mode == "train_asrgan":
     resume_g = ""
 
     # Total num epochs
-    epochs = 100
+    epochs = 5
 
     # Feature extraction layer parameter configuration
     feature_model_extractor_nodes = [

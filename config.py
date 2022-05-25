@@ -6,10 +6,10 @@ from torch.backends import cudnn
 
 
 image_size = 128
-batch_size = 48
+batch_size = 8
 
 # Current configuration parameter method
-mode = "train_asrnet"
+mode = "train_asrgan"
 
 degradation_model_parameters = {
     "sinc_kernel_size": 21,
@@ -88,7 +88,7 @@ if mode == "train_asrnet":
     resume = ""
 
     # Total num epochs
-    epochs = 2
+    epochs = 5
 
     # Optimizer parameter
     model_lr = 2e-4
@@ -100,7 +100,7 @@ if mode == "train_asrnet":
     lr_scheduler_gamma = 0.5
 
     # How many iterations to print the training result
-    print_frequency = 10
+    print_frequency = 1
 
 if mode == "train_asrgan":
     # Dataset address
@@ -115,7 +115,7 @@ if mode == "train_asrgan":
     resume_g = ""
 
     # Total num epochs
-    epochs = 1
+    epochs = 10
 
     # Feature extraction layer parameter configuration
     feature_model_extractor_nodes = [
@@ -148,7 +148,7 @@ if mode == "train_asrgan":
     lr_scheduler_gamma = 0.5
 
     # How many iterations to print the training result
-    print_frequency = 10
+    print_frequency = 1
 
 if mode == "valid":
     # Test data address

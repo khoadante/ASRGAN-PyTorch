@@ -11,7 +11,7 @@ def main() -> None:
     # Initialize the super-resolution model
     model = Generator(
         config.in_channels, config.out_channels, config.upscale_factor
-    ).to(device=config.device, memory_format=torch.channels_last)
+    ).to(device=config.device, non_blocking=True)
     print("Build ASRGAN model successfully.")
 
     # Load the super-resolution model weights
@@ -66,9 +66,7 @@ def main() -> None:
         ).unsqueeze_(0)
 
         # Transfer Tensor channel image format data to CUDA device
-        lr_tensor = lr_tensor.to(
-            device=config.device, memory_format=torch.channels_last, non_blocking=True
-        )
+        lr_tensor = lr_tensor.to(device=config.device, non_blocking=True)
 
         # Only reconstruct the Y channel image data.
         with torch.no_grad():

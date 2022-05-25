@@ -18,9 +18,7 @@ def build_asrgan_model() -> List[nn.Module]:
     )
     discriminator = Discriminator()
     # Transfer to CUDA
-    generator = generator.to(device=config.device, memory_format=torch.channels_last)
-    discriminator = discriminator.to(
-        device=config.device, memory_format=torch.channels_last
-    )
+    generator = generator.to(device=config.device, non_blocking=True)
+    discriminator = discriminator.to(device=config.device, non_blocking=True)
 
     return generator, discriminator

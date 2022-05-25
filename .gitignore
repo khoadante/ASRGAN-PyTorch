@@ -1,3 +1,8 @@
+# Specified folders
+datasets/DIV2K/
+samples/logs/
+
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -127,3 +132,13 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# custom
+.idea
+.vscode
+
+# Mac configure file.
+.DS_Store
+
+# File extensions
+*.zip

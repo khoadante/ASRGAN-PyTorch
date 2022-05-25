@@ -74,5 +74,31 @@ class ContentLoss(nn.Module):
             sr_features[self.feature_model_extractor_nodes[3]],
             hr_features[self.feature_model_extractor_nodes[3]],
         )
+        content_loss5 = F.l1_loss(
+            sr_features[self.feature_model_extractor_nodes[4]],
+            hr_features[self.feature_model_extractor_nodes[4]],
+        )
 
-        return content_loss1, content_loss2, content_loss3, content_loss4
+        return content_loss1, content_loss2, content_loss3, content_loss4, content_loss5
+
+
+class GANLoss(nn.Module):
+    def __init__(self, target_real_label=1.0, target_fake_label=0.0):
+        super(GANLoss, self).__init__()
+        self.register_buffer("real_label", torch.tensor(target_real_label))
+        self.register_buffer("fake_label", torch.tensor(target_fake_label))
+
+        self.loss = nn.BCEWithLogitsLoss()
+
+    def get_target_tensor(self, input, target_is_real):
+        if target_is_real:
+            target_tensor = self.real_label
+        else:
+            target_tensor = self.fake_label
+        print(target_tensor.shape)
+        print(input.shape)
+        return target_tensor.expand_as(input)
+
+    def __call__(self, input, target_is_real):
+        target_tensor = self.get_target_tensor(input, target_is_real)
+        return self.loss(input, target_tensor)

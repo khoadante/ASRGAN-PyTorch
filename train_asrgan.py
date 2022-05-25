@@ -11,7 +11,7 @@ from torch import optim
 from torch.cuda import amp
 from torch.nn import functional as F
 from networks.models import EMA
-from networks.losses import ContentLoss
+from networks.losses import ContentLoss, GANLoss
 from classes.prefetchers import CUDAPrefetcher
 from utils.image_metrics import NIQE
 from utils.load_datasets import load_datasets
@@ -34,7 +34,7 @@ def main():
     train_prefetcher, valid_prefetcher, test_prefetcher = load_datasets()
     print("Load dataset successfully.")
 
-    discriminator, generator = build_asrgan_model()
+    generator, discriminator = build_asrgan_model()
     print("Build ASRGAN model successfully.")
 
     pixel_criterion, content_criterion, adversarial_criterion = define_asrgan_loss()
@@ -52,7 +52,7 @@ def main():
         checkpoint = torch.load(
             config.resume, map_location=lambda storage, loc: storage
         )
-        generator.load_state_dict(checkpoint["state_dict"])
+        generator.load_state_dict(checkpoint["state_dict"], strict=False)
         print("Loaded ASRNet model weights.")
 
     print("Check whether the pretrained discriminator model is restored...")
@@ -123,15 +123,11 @@ def main():
     niqe_model = NIQE(config.upscale_factor, config.niqe_model_path)
 
     # Transfer the IQA model to the specified device
-    niqe_model = niqe_model.to(
-        device=config.device, memory_format=torch.channels_last, non_blocking=True
-    )
+    niqe_model = niqe_model.to(device=config.device, non_blocking=True)
 
     # Create an Exponential Moving Average Model
     ema_model = EMA(generator, config.ema_model_weight_decay)
-    ema_model = ema_model.to(
-        device=config.device, memory_format=torch.channels_last, non_blocking=True
-    )
+    ema_model = ema_model.to(device=config.device, non_blocking=True)
     ema_model.register()
 
     for epoch in range(start_epoch, config.epochs):
@@ -211,7 +207,7 @@ def train(
     train_prefetcher: CUDAPrefetcher,
     pixel_criterion: nn.L1Loss,
     content_criterion: ContentLoss,
-    adversarial_criterion: nn.BCEWithLogitsLoss,
+    adversarial_criterion: GANLoss,
     d_optimizer: optim.Adam,
     g_optimizer: optim.Adam,
     epoch: int,
@@ -237,14 +233,10 @@ def train(
     """
     # Defining JPEG image manipulation methods
     jpeg_operation = imgproc.DiffJPEG(differentiable=False)
-    jpeg_operation = jpeg_operation.to(
-        device=config.device, memory_format=torch.channels_last, non_blocking=True
-    )
+    jpeg_operation = jpeg_operation.to(device=config.device, non_blocking=True)
     # Define image sharpening method
     usm_sharpener = imgproc.USMSharp()
-    usm_sharpener = usm_sharpener.to(
-        device=config.device, memory_format=torch.channels_last, non_blocking=True
-    )
+    usm_sharpener = usm_sharpener.to(device=config.device, non_blocking=True)
 
     # Calculate how many batches of data are in each Epoch
     batches = len(train_prefetcher)
@@ -289,17 +281,11 @@ def train(
         # Calculate the time it takes to load a batch of data
         data_time.update(time.time() - end)
 
-        hr = batch_data["hr"].to(
-            device=config.device, memory_format=torch.channels_last, non_blocking=True
-        )
-        kernel1 = batch_data["kernel1"].to(
-            device=config.device, memory_format=torch.channels_last, non_blocking=True
-        )
-        kernel2 = batch_data["kernel2"].to(
-            device=config.device, memory_format=torch.channels_last, non_blocking=True
-        )
+        hr = batch_data["hr"].to(device=config.device, non_blocking=True)
+        kernel1 = batch_data["kernel1"].to(device=config.device, non_blocking=True)
+        kernel2 = batch_data["kernel2"].to(device=config.device, non_blocking=True)
         sinc_kernel = batch_data["sinc_kernel"].to(
-            device=config.device, memory_format=torch.channels_last, non_blocking=True
+            device=config.device, non_blocking=True
         )
 
         # Sharpen high-resolution images
@@ -494,15 +480,17 @@ def train(
 
         # Calculate the perceptual loss of the generator, mainly including pixel loss, feature loss and adversarial loss
         with amp.autocast():
+            sr = generator(lr)
             pixel_loss = config.pixel_weight * pixel_criterion(usm_sharpener(sr), hr)
             content_loss = torch.sum(
                 torch.multiply(
-                    config.content_weight, content_criterion(usm_sharpener(sr), hr)
+                    torch.tensor(config.content_weight),
+                    torch.tensor(content_criterion(usm_sharpener(sr), hr)),
                 )
             )
-            adversarial_loss = config.adversarial_weight * adversarial_criterion(
-                discriminator(sr), real_label
-            )
+            fake_output = discriminator(sr.detach())
+            adversarial_loss = 0.1 * adversarial_criterion(fake_output, True)
+            # adversarial_loss = config.adversarial_weight * adversarial_criterion(discriminator(sr), True)
             # Calculate the generator total loss value
             g_loss = pixel_loss + content_loss + adversarial_loss
         # Call the gradient scaling function in the mixed precision API to backpropagate the gradient information of the fake samples
@@ -625,16 +613,8 @@ def validate(
 
     with torch.no_grad():
         while batch_data is not None:
-            lr = batch_data["lr"].to(
-                device=config.device,
-                memory_format=torch.channels_last,
-                non_blocking=True,
-            )
-            hr = batch_data["hr"].to(
-                device=config.device,
-                memory_format=torch.channels_last,
-                non_blocking=True,
-            )
+            lr = batch_data["lr"].to(device=config.device, non_blocking=True)
+            hr = batch_data["hr"].to(device=config.device, non_blocking=True)
 
             # Mixed precision
             with amp.autocast():
@@ -671,3 +651,7 @@ def validate(
         raise ValueError("Unsupported mode, please use `Valid` or `Test`.")
 
     return niqe_metrics.avg
+
+
+if __name__ == "__main__":
+    main()
